@@ -57,7 +57,7 @@ export function TransactionDialog({ onSuccess }: TransactionDialogProps) {
 
       const { error } = await supabase.from('transactions').insert({
         company_id: selectedCompany?.id || null,
-        partner_id: formData.partner_id || null,
+        partner_id: formData.partner_id === 'none' ? null : formData.partner_id || null,
         type: formData.type,
         direction: formData.direction,
         amount: parseFloat(formData.amount),
@@ -118,7 +118,7 @@ export function TransactionDialog({ onSuccess }: TransactionDialogProps) {
                   <SelectValue placeholder="Select partner (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None (Customer Payment)</SelectItem>
+                  <SelectItem value="none">None (Customer Payment)</SelectItem>
                   {partners?.map(partner => (
                     <SelectItem key={partner.id} value={partner.id}>
                       {partner.name} ({partner.email})
