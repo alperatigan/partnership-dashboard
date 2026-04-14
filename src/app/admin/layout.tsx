@@ -39,11 +39,14 @@ export default function AdminLayout({
     }
 
     async function initAuth() {
+      console.log('AdminLayout: initAuth called');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('AdminLayout: session:', session?.user?.id);
       
       if (session?.user) {
         await checkAdmin(session.user.id);
       } else {
+        console.log('AdminLayout: No session, redirecting to login');
         router.push('/admin/login');
       }
     }
@@ -51,6 +54,7 @@ export default function AdminLayout({
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
+      console.log('AdminLayout: Auth event:', event, session?.user?.id);
       if (event === 'SIGNED_IN' && session?.user) {
         await checkAdmin(session.user.id);
       } else if (event === 'SIGNED_OUT' || !session) {

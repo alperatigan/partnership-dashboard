@@ -34,11 +34,15 @@ export default function AdminLoginPage() {
       return;
     }
 
+    console.log('User ID:', data.user?.id);
+
     const { data: admin } = await supabase
       .from('admins')
       .select('*')
       .eq('user_id', data.user?.id)
       .single();
+
+    console.log('Admin record:', admin);
 
     if (!admin) {
       await supabase.auth.signOut();
@@ -47,7 +51,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.push('/admin');
+    window.location.href = '/admin';
   };
 
   return (
