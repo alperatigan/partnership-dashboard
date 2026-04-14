@@ -51,6 +51,7 @@ export default function AdminLoginPage() {
       return;
     }
 
+    await supabase.auth.refreshSession();
     window.location.href = '/admin';
   };
 
