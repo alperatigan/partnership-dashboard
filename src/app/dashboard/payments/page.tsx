@@ -189,7 +189,7 @@ export default function PaymentsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
       <Card>
         <CardHeader>

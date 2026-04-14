@@ -16,7 +16,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Building2 } from 'lucide-react';
-import type { Company } from '@/types';
+
+const COMPANY_OPTIONS = [
+  { id: 'clinixglow', name: 'ClinixGlow', color: '#6366F1' },
+  { id: 'graftscope', name: 'GraftScope', color: '#10B981' },
+  { id: 'both', name: 'Both of Them', color: '#8B5CF6' },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,17 +31,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [companies, setCompanies] = useState<Company[]>([]);
 
   const supabase = createClient();
-
-  useEffect(() => {
-    async function fetchCompanies() {
-      const { data } = await supabase.from('companies').select('*').eq('is_active', true);
-      if (data) setCompanies(data);
-    }
-    fetchCompanies();
-  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,12 +175,12 @@ export default function LoginPage() {
                     <SelectValue placeholder="Default company" />
                   </SelectTrigger>
                   <SelectContent>
-                    {companies.map((company) => (
+                    {COMPANY_OPTIONS.map((company) => (
                       <SelectItem key={company.id} value={company.id}>
                         <div className="flex items-center gap-2">
                           <div 
                             className="w-4 h-4 rounded" 
-                            style={{ backgroundColor: company.primary_color }}
+                            style={{ backgroundColor: company.color }}
                           />
                           {company.name}
                         </div>

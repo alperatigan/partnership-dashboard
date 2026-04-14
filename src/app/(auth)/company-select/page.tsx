@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Building2, ArrowRight, Check } from 'lucide-react';
 import type { Company } from '@/types';
 
+const BOTH_OPTION = { id: 'both', name: 'Both of Them', slug: 'both', primary_color: '#8B5CF6', logo_url: null, secondary_color: '#A78BFA', website_url: null, is_active: true, created_at: '', updated_at: '' };
+
 export default function CompanySelectPage() {
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -70,7 +72,11 @@ export default function CompanySelectPage() {
 
   const handleContinue = () => {
     if (selectedCompany) {
-      localStorage.setItem('selected_company_id', selectedCompany);
+      if (selectedCompany === 'both') {
+        localStorage.setItem('selected_company_id', 'all');
+      } else {
+        localStorage.setItem('selected_company_id', selectedCompany);
+      }
       router.push('/dashboard');
     }
   };
@@ -85,6 +91,8 @@ export default function CompanySelectPage() {
       </div>
     );
   }
+
+  const displayCompanies = [...companies, BOTH_OPTION as Company];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -106,7 +114,7 @@ export default function CompanySelectPage() {
 
         {/* Company Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {companies.map((company) => (
+          {displayCompanies.map((company) => (
             <button
               key={company.id}
               onClick={() => setSelectedCompany(company.id)}
@@ -121,12 +129,21 @@ export default function CompanySelectPage() {
                 className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-4"
                 style={{ backgroundColor: company.primary_color }}
               >
-                {company.name.charAt(0)}
+                {company.name === 'Both of Them' ? (
+                  <div className="flex">
+                    <div className="w-6 h-6 rounded-l-full" style={{ backgroundColor: '#6366F1' }} />
+                    <div className="w-6 h-6 rounded-r-full" style={{ backgroundColor: '#10B981' }} />
+                  </div>
+                ) : (
+                  company.name.charAt(0)
+                )}
               </div>
 
               {/* Company Info */}
               <h3 className="text-xl font-semibold mb-1">{company.name}</h3>
-              <p className="text-sm text-muted-foreground capitalize">{company.slug}</p>
+              <p className="text-sm text-muted-foreground capitalize">
+                {company.slug === 'both' ? 'Work with both companies' : company.slug}
+              </p>
 
               {/* Selection Indicator */}
               {selectedCompany === company.id && (
