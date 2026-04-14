@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { usePartners } from '@/hooks/use-queries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,6 @@ import {
 import { Progress } from '@/components/ui/progress';
 import {
   AlertTriangle,
-  AlertCircle,
   Bell,
   BellRing,
   CheckCircle,
@@ -35,9 +34,8 @@ import {
   TrendingDown,
   Users,
   Mail,
-  Eye,
 } from 'lucide-react';
-import { formatDate, getCountryFlag, getCountryName } from '@/lib/utils';
+import { getCountryFlag, getCountryName } from '@/lib/utils';
 import type { Partner } from '@/types';
 
 interface PartnerWithKPI extends Partner {
@@ -48,6 +46,22 @@ interface PartnerWithKPI extends Partner {
   under_quota_months?: number;
 }
 
+function generateMockKPI(partnerId: string, seed: number): { leads: number; demos: number; leadQuota: number; demoQuota: number; underMonths: number } {
+  const x = Math.sin(seed) * 10000;
+  const rand = x - Math.floor(x);
+  const x2 = Math.sin(seed * 2) * 10000;
+  const rand2 = x2 - Math.floor(x2);
+  const x3 = Math.sin(seed * 3) * 10000;
+  const rand3 = x3 - Math.floor(x3);
+  return {
+    leads: Math.floor(rand * 25),
+    demos: Math.floor(rand2 * 15),
+    leadQuota: 20,
+    demoQuota: 12,
+    underMonths: Math.floor(rand3 * 3),
+  };
+}
+
 export default function AdminAlertsPage() {
   const { data: partners, isLoading } = usePartners();
   const [search, setSearch] = useState('');
@@ -56,17 +70,23 @@ export default function AdminAlertsPage() {
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
-  const mockKPIData: Record<string, { leads: number; demos: number; leadQuota: number; demoQuota: number; underMonths: number }> = {
-    // In real app, this would come from partner_kpis table
-  };
+  const mockKPIData = useMemo(() => {
+    const data: Record<string, { leads: number; demos: number; leadQuota: number; demoQuota: number; underMonths: number }> = {};
+    if (partners) {
+      partners.forEach((p, idx) => {
+        data[p.id] = generateMockKPI(p.id, idx);
+      });
+    }
+    return data;
+  }, [partners]);
 
   const getPartnerKPI = (partner: Partner): PartnerWithKPI => {
     const kpi = mockKPIData[partner.id] || {
-      leads: Math.floor(Math.random() * 25),
-      demos: Math.floor(Math.random() * 15),
+      leads: 0,
+      demos: 0,
       leadQuota: 20,
       demoQuota: 12,
-      underMonths: Math.floor(Math.random() * 3),
+      underMonths: 0,
     };
     
     return {
