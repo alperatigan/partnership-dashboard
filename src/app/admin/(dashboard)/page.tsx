@@ -194,7 +194,7 @@ function generateMonthlyPartners(partners: Partner[]) {
 function generateActivityFeed(partners: Partner[], demos: DemoRecord[], commissions: Commission[]) {
   interface Activity {
     id: string;
-    type: string;
+    type: 'partner_joined' | 'demo_approved' | 'payment_made' | 'alert_triggered' | 'lead_created';
     message: string;
     timestamp: string;
   }

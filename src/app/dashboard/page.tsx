@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatDate, getCountryName, getCountryFlag } from '@/lib/utils';
-import type { Lead, Payment } from '@/types';
+import type { Lead, Payment, LeadsWithExpiry } from '@/types';
 
 export default function TemsilciDashboardPage() {
   const { user } = useAuth();
@@ -207,7 +207,7 @@ export default function TemsilciDashboardPage() {
             <CardContent>
               <Table>
                 <TableBody>
-                  {expiringLeads.map((lead: Lead) => (
+                  {expiringLeads.map((lead: LeadsWithExpiry) => (
                     <TableRow key={lead.id}>
                       <TableCell>
                         <div>
