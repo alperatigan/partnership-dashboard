@@ -51,9 +51,8 @@ export default function AdminLoginPage() {
       return;
     }
 
-    alert('Login successful! Redirecting to admin dashboard...');
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    window.location.href = '/admin';
+    await new Promise(resolve => setTimeout(resolve, 500));
+    router.push('/admin');
   };
 
   return (
