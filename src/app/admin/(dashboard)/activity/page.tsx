@@ -22,6 +22,7 @@ import {
   ArrowDownRight,
   ArrowLeftRight,
   Download,
+  FileText,
   Filter,
   Calendar,
   TrendingUp,
@@ -251,6 +252,24 @@ export default function AdminActivityPage() {
     setIsExporting(false);
   };
 
+  const handleDownloadPDF = async () => {
+    setIsExporting(true);
+    
+    const params = new URLSearchParams({
+      company_id: isAllCompanies ? 'all' : (selectedCompany?.id || 'all'),
+      type: typeFilter,
+      direction: directionFilter,
+      partner_id: partnerFilter,
+      date_range: dateRange,
+      custom_start_date: customStartDate,
+      custom_end_date: customEndDate,
+      date_range_label: dateRange === 'all' ? 'All Time' : dateRange === 'custom' ? `${customStartDate} - ${customEndDate}` : dateRange,
+    });
+      
+    window.open(`/api/admin/reports/pdf?${params.toString()}`, '_blank');
+    setIsExporting(false);
+  };
+
   const filteredTransactions = useMemo(() => {
     if (!searchQuery) return transactions;
     const q = searchQuery.toLowerCase();
@@ -294,6 +313,10 @@ export default function AdminActivityPage() {
           <Button variant="outline" onClick={handleExport} disabled={isExporting}>
             <Download className="h-4 w-4 mr-2" />
             Export CSV
+          </Button>
+          <Button variant="outline" onClick={handleDownloadPDF} disabled={isExporting}>
+            <FileText className="h-4 w-4 mr-2" />
+            Download PDF
           </Button>
         </div>
       </div>
