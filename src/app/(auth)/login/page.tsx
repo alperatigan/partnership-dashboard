@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -8,16 +8,34 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Building2, ChevronDown } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [companies, setCompanies] = useState<any[]>([]);
 
   const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchCompanies() {
+      const { data } = await supabase.from('companies').select('*').eq('is_active', true);
+      if (data) setCompanies(data);
+    }
+    fetchCompanies();
+  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +51,38 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
       } else if (data.user) {
-        router.push('/dashboard');
+        // Check if partner has partner_companies entries
+        const { data: partnerData } = await supabase
+          .from('partners')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .single();
+
+        if (partnerData) {
+          // Check partner_companies
+          const { data: partnerCompanies } = await supabase
+            .from('partner_companies')
+            .select('company_id, is_active')
+            .eq('partner_id', partnerData.id)
+            .eq('is_active', true);
+
+          if (partnerCompanies && partnerCompanies.length > 0) {
+            // If only 1 active company, go to dashboard with that company
+            // If 2 companies, go to company select page
+            if (partnerCompanies.length === 1) {
+              localStorage.setItem('selected_company_id', partnerCompanies[0].company_id);
+              router.push('/dashboard');
+            } else {
+              router.push('/company-select');
+            }
+          } else {
+            // No partner_companies entry, go to dashboard (company_id from partners table)
+            router.push('/dashboard');
+          }
+        } else {
+          // No partner record found, just go to dashboard
+          router.push('/dashboard');
+        }
         router.refresh();
       }
     } catch (err) {
@@ -46,7 +95,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
@@ -72,8 +121,13 @@ export default function LoginPage() {
 
       <Card className="border-0 shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-serif">Welcome back</CardTitle>
-          <CardDescription>
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+              <span className="text-primary-foreground font-serif text-xl">CG</span>
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-serif text-center">Welcome back</CardTitle>
+          <CardDescription className="text-center">
             Sign in to your partner dashboard
           </CardDescription>
         </CardHeader>
@@ -114,6 +168,34 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Select Company (Optional)</Label>
+              <div className="relative">
+                <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+                  <SelectTrigger className="pl-10">
+                    <SelectValue placeholder="Default company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-4 h-4 rounded" 
+                            style={{ backgroundColor: company.primary_color }}
+                          />
+                          {company.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                If you work with multiple companies, you can select one after login
+              </p>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

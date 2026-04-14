@@ -21,6 +21,51 @@ export type PaymentType = 'commission' | 'bonus' | 'clawback' | 'refund';
 
 export type PaymentMethod = 'wise' | 'payoneer' | 'gcash' | 'bank_transfer';
 
+// ============ COMPANY TYPES ============
+
+export interface Company {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  primary_color: string;
+  secondary_color: string;
+  website_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PartnerCompany {
+  id: string;
+  partner_id: string;
+  company_id: string;
+  is_active: boolean;
+  selected_company_id: string | null;
+  access_level: 'read' | 'write' | 'admin';
+  created_at: string;
+}
+
+export interface PartnerNote {
+  id: string;
+  partner_id: string;
+  admin_id: string | null;
+  content: string;
+  note_type: 'general' | 'warning' | 'kpi' | 'payment' | 'other';
+  created_at: string;
+  updated_at: string;
+  admin_name?: string;
+}
+
+// ============ PARTNER WITH COMPANY ============
+
+export interface PartnerWithCompany extends Partner {
+  company_id: string;
+  company_name: string;
+  company_slug?: string;
+  company_color?: string;
+}
+
 // ============ CORE TABLES ============
 
 export interface Partner {
@@ -42,6 +87,8 @@ export interface Partner {
   updated_at: string;
   approved_at: string | null;
   notes: string | null;
+  company_id?: string | null;
+  company_name?: string | null;
 }
 
 export interface Commission {
@@ -59,6 +106,8 @@ export interface Commission {
   payout_reference: string | null;
   created_at: string;
   updated_at: string;
+  company_id?: string | null;
+  company_name?: string | null;
 }
 
 export interface SimulatorSession {
@@ -72,6 +121,8 @@ export interface SimulatorSession {
   monthly_commission: number;
   projected_annual: number;
   created_at: string;
+  company_id?: string | null;
+  company_name?: string | null;
 }
 
 export interface Admin {
@@ -136,6 +187,8 @@ export interface Lead {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  company_id?: string | null;
+  company_name?: string | null;
 }
 
 export interface DemoRecord {
@@ -155,6 +208,8 @@ export interface DemoRecord {
   demo_notes: string | null;
   created_at: string;
   updated_at: string;
+  company_id?: string | null;
+  company_name?: string | null;
 }
 
 export interface Payment {
@@ -173,6 +228,8 @@ export interface Payment {
   year_1: boolean;
   created_at: string;
   updated_at: string;
+  company_id?: string | null;
+  company_name?: string | null;
 }
 
 export interface PartnerChecklist {
