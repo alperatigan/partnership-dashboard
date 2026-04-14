@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { usePendingDemoAudit, useApproveDemo, useUpdateDemoRecord, useDemoRecords } from '@/hooks/use-crm-queries';
-import { usePartners, useAdminStats } from '@/hooks/use-queries';
+import { usePendingDemoAudit, useApproveDemo, useUpdateDemoRecord, useDemoRecords, useLeads, usePayments, usePartnerChecklist } from '@/hooks/use-crm-queries';
+import { usePartners, useAdminStats, useCommissions, useSimulatorSessions } from '@/hooks/use-queries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -774,50 +774,281 @@ function PartnerDetailModal({ partnerId }: { partnerId: string }) {
 }
 
 function PartnerLeads({ partnerId }: { partnerId: string }) {
-  const { data: leads } = usePartners();
+  const { data: leads, isLoading } = useLeads({ partnerId });
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  const leadStatusConfig: Record<string, { label: string; color: string }> = {
+    contacted: { label: 'Contacted', color: 'bg-blue-100 text-blue-800' },
+    demo_scheduled: { label: 'Demo Scheduled', color: 'bg-yellow-100 text-yellow-800' },
+    demo_done: { label: 'Demo Done', color: 'bg-orange-100 text-orange-800' },
+    trial_active: { label: 'Trial Active', color: 'bg-green-100 text-green-800' },
+    closed: { label: 'Closed', color: 'bg-primary/10 text-primary' },
+    expired: { label: 'Expired', color: 'bg-red-100 text-red-800' },
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="font-medium">Leads ({leads?.length || 0})</h3>
       </div>
-      <p className="text-muted-foreground text-sm">Leads management coming soon...</p>
+      {leads && leads.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Clinic</TableHead>
+              <TableHead>Country</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Expires</TableHead>
+              <TableHead>Added</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {leads.map((lead) => {
+              const status = leadStatusConfig[lead.status] || leadStatusConfig.contacted;
+              const daysLeft = lead.expires_at 
+                ? Math.ceil((new Date(lead.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                : null;
+              return (
+                <TableRow key={lead.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{lead.clinic_name}</p>
+                      {lead.contact_name && <p className="text-sm text-muted-foreground">{lead.contact_name}</p>}
+                    </div>
+                  </TableCell>
+                  <TableCell>{getCountryFlag(lead.country)} {getCountryName(lead.country)}</TableCell>
+                  <TableCell><Badge className={status.color}>{status.label}</Badge></TableCell>
+                  <TableCell>
+                    {daysLeft !== null && daysLeft < 30 ? (
+                      <Badge variant="outline" className={daysLeft < 7 ? 'text-red-600 border-red-300' : 'text-orange-600 border-orange-300'}>
+                        {daysLeft}d left
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">{formatDate(lead.expires_at)}</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{formatDate(lead.created_at)}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      ) : (
+        <p className="text-muted-foreground text-sm py-4">No leads found for this partner.</p>
+      )}
     </div>
   );
 }
 
 function PartnerDemos({ partnerId }: { partnerId: string }) {
+  const { data: demos, isLoading } = useDemoRecords({ partnerId });
+  const { data: leads } = useLeads({ partnerId });
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  const demoStatusConfig: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
+    approved: { label: 'Approved', color: 'bg-green-100 text-green-800' },
+    rejected: { label: 'Rejected', color: 'bg-red-100 text-red-800' },
+  };
+
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Demos</h3>
-      <p className="text-muted-foreground text-sm">Demo management coming soon...</p>
+      <h3 className="font-medium">Demos ({demos?.length || 0})</h3>
+      {demos && demos.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Lead</TableHead>
+              <TableHead>Scheduled</TableHead>
+              <TableHead>Verification</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {demos.map((demo) => {
+              const lead = leads?.find(l => l.id === demo.lead_id);
+              const status = demoStatusConfig[demo.status] || demoStatusConfig.pending;
+              return (
+                <TableRow key={demo.id}>
+                  <TableCell>
+                    <p className="font-medium">{lead?.clinic_name || 'Unknown'}</p>
+                    {lead?.contact_name && <p className="text-sm text-muted-foreground">{lead.contact_name}</p>}
+                  </TableCell>
+                  <TableCell>{demo.scheduled_at ? formatDate(demo.scheduled_at) : '-'}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Checkbox checked={demo.crm_note_checked} disabled />
+                      <Checkbox checked={demo.trial_opened} disabled />
+                      <Checkbox checked={demo.follow_up_email_sent} disabled />
+                      {demo.is_verified && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    </div>
+                  </TableCell>
+                  <TableCell><Badge className={status.color}>{status.label}</Badge></TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      ) : (
+        <p className="text-muted-foreground text-sm py-4">No demos found for this partner.</p>
+      )}
     </div>
   );
 }
 
 function PartnerPayments({ partnerId }: { partnerId: string }) {
+  const { data: payments, isLoading } = usePayments({ partnerId });
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  const paidPayments = payments?.filter(p => p.status === 'paid') || [];
+  const pendingPayments = payments?.filter(p => p.status === 'pending' || p.status === 'approved') || [];
+  const totalPaid = paidPayments.reduce((sum, p) => sum + p.amount, 0);
+  const totalPending = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
+  const year1Total = paidPayments.filter(p => p.year_1).reduce((sum, p) => sum + p.amount, 0);
+  const year2Total = paidPayments.filter(p => !p.year_1).reduce((sum, p) => sum + p.amount, 0);
+
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Payments</h3>
-      <p className="text-muted-foreground text-sm">Payment history coming soon...</p>
+      <div className="grid grid-cols-4 gap-4">
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">${totalPaid.toFixed(2)}</p><p className="text-sm text-muted-foreground">Total Paid</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">${totalPending.toFixed(2)}</p><p className="text-sm text-muted-foreground">Pending</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">${year1Total.toFixed(2)}</p><p className="text-sm text-muted-foreground">Year 1</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">${year2Total.toFixed(2)}</p><p className="text-sm text-muted-foreground">Year 2+</p></CardContent></Card>
+      </div>
+      {payments && payments.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Amount</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Method</TableHead>
+              <TableHead>Paid At</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {payments.map((payment) => (
+              <TableRow key={payment.id}>
+                <TableCell className="font-medium">${payment.amount.toFixed(2)}</TableCell>
+                <TableCell><Badge variant="outline">{payment.type}</Badge></TableCell>
+                <TableCell><Badge className={payment.status === 'paid' ? 'bg-green-100 text-green-800' : payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}>{payment.status}</Badge></TableCell>
+                <TableCell>{payment.payment_method || '-'}</TableCell>
+                <TableCell>{payment.paid_at ? formatDate(payment.paid_at) : '-'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <p className="text-muted-foreground text-sm py-4">No payments found for this partner.</p>
+      )}
     </div>
   );
 }
 
 function PartnerCommissions({ partnerId }: { partnerId: string }) {
+  const { data: commissions, isLoading } = useCommissions({ partnerId });
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  const pendingCommissions = commissions?.filter(c => c.status === 'pending' || c.status === 'approved') || [];
+  const paidCommissions = commissions?.filter(c => c.status === 'paid') || [];
+  const totalPending = pendingCommissions.reduce((sum, c) => sum + (c.amount || 0), 0);
+  const totalPaid = paidCommissions.reduce((sum, c) => sum + (c.amount || 0), 0);
+
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Commissions</h3>
-      <p className="text-muted-foreground text-sm">Commission details coming soon...</p>
+      <div className="grid grid-cols-3 gap-4">
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">${totalPaid.toFixed(2)}</p><p className="text-sm text-muted-foreground">Total Paid</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">${totalPending.toFixed(2)}</p><p className="text-sm text-muted-foreground">Pending</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">{commissions?.length || 0}</p><p className="text-sm text-muted-foreground">Total Deals</p></CardContent></Card>
+      </div>
+      {commissions && commissions.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Client</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Deal Value</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {commissions.map((commission) => (
+              <TableRow key={commission.id}>
+                <TableCell>
+                  <p className="font-medium">{commission.client_name || 'N/A'}</p>
+                  <p className="text-sm text-muted-foreground">{commission.client_email || ''}</p>
+                </TableCell>
+                <TableCell className="font-medium">${commission.amount.toFixed(2)}</TableCell>
+                <TableCell>{commission.deal_value ? `$${commission.deal_value.toFixed(2)}` : '-'}</TableCell>
+                <TableCell><Badge className={commission.status === 'paid' ? 'bg-green-100 text-green-800' : commission.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}>{commission.status}</Badge></TableCell>
+                <TableCell className="text-muted-foreground text-sm">{formatDate(commission.created_at)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <p className="text-muted-foreground text-sm py-4">No commissions found for this partner.</p>
+      )}
     </div>
   );
 }
 
 function PartnerDocuments({ partnerId }: { partnerId: string }) {
+  const { data: checklist, isLoading } = usePartnerChecklist(partnerId);
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  const items = [
+    { key: 'contract_signed', label: 'Contract Signed', date: checklist?.contract_signed_at },
+    { key: 'profile_completed', label: 'Profile Completed', date: checklist?.profile_completed_at },
+    { key: 'tax_form_submitted', label: 'Tax Form Submitted', date: checklist?.tax_form_submitted_at },
+    { key: 'payment_method_selected', label: 'Payment Method Selected', date: checklist?.payment_method_selected_at },
+    { key: 'orientation_completed', label: 'Orientation Completed', date: checklist?.orientation_completed_at },
+    { key: 'avatar_doc_received', label: 'Avatar Document Received', date: null },
+    { key: 'offer_doc_received', label: 'Offer Document Received', date: null },
+  ];
+
+  const completedCount = items.filter(item => checklist?.[item.key as keyof typeof checklist]).length;
+
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Documents</h3>
-      <p className="text-muted-foreground text-sm">Document checklist coming soon...</p>
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium">Onboarding Checklist</h3>
+        <Badge variant="outline">{completedCount}/{items.length} completed</Badge>
+      </div>
+      <div className="space-y-2">
+        {items.map((item) => {
+          const isCompleted = checklist?.[item.key as keyof typeof checklist];
+          return (
+            <div key={item.key} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex items-center gap-3">
+                {isCompleted ? (
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                ) : (
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                )}
+                <span className={isCompleted ? '' : 'text-muted-foreground'}>{item.label}</span>
+              </div>
+              {item.date && <span className="text-sm text-muted-foreground">{formatDate(item.date)}</span>}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -825,44 +1056,99 @@ function PartnerDocuments({ partnerId }: { partnerId: string }) {
 function PartnerProfile({ partner }: { partner: Partner }) {
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Profile</h3>
+      <h3 className="font-medium">Partner Profile</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-muted-foreground">Name</Label>
-          <p>{partner.name}</p>
+          <Label className="text-muted-foreground text-sm">Name</Label>
+          <p className="font-medium">{partner.name}</p>
         </div>
         <div>
-          <Label className="text-muted-foreground">Email</Label>
-          <p>{partner.email}</p>
+          <Label className="text-muted-foreground text-sm">Email</Label>
+          <p className="font-medium">{partner.email}</p>
         </div>
         <div>
-          <Label className="text-muted-foreground">Country</Label>
-          <p>{getCountryFlag(partner.country)} {getCountryName(partner.country)}</p>
+          <Label className="text-muted-foreground text-sm">Country</Label>
+          <p className="font-medium">{getCountryFlag(partner.country)} {getCountryName(partner.country)}</p>
         </div>
         <div>
-          <Label className="text-muted-foreground">Status</Label>
+          <Label className="text-muted-foreground text-sm">Status</Label>
           <Badge variant={partnerStatusConfig[partner.status]?.variant || 'default'}>
             {partnerStatusConfig[partner.status]?.label || partner.status}
           </Badge>
         </div>
         <div>
-          <Label className="text-muted-foreground">Tier</Label>
-          <p>{partner.tier || 'None'}</p>
+          <Label className="text-muted-foreground text-sm">Tier</Label>
+          <p className="font-medium">{partner.tier || 'None'}</p>
         </div>
         <div>
-          <Label className="text-muted-foreground">Joined</Label>
-          <p>{formatDate(partner.created_at)}</p>
+          <Label className="text-muted-foreground text-sm">Joined</Label>
+          <p className="font-medium">{formatDate(partner.created_at)}</p>
         </div>
+        <div>
+          <Label className="text-muted-foreground text-sm">Total Earned</Label>
+          <p className="font-medium">${partner.total_earned.toFixed(2)}</p>
+        </div>
+        <div>
+          <Label className="text-muted-foreground text-sm">Pending Payout</Label>
+          <p className="font-medium">${partner.pending_payout.toFixed(2)}</p>
+        </div>
+        {partner.linkedin_url && (
+          <div className="col-span-2">
+            <Label className="text-muted-foreground text-sm">LinkedIn</Label>
+            <p className="font-medium">{partner.linkedin_url}</p>
+          </div>
+        )}
+        {partner.notes && (
+          <div className="col-span-2">
+            <Label className="text-muted-foreground text-sm">Notes</Label>
+            <p className="font-medium">{partner.notes}</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 function PartnerSimulator({ partnerId }: { partnerId: string }) {
+  const { data: sessions, isLoading } = useSimulatorSessions(partnerId);
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Simulator</h3>
-      <p className="text-muted-foreground text-sm">Simulator sessions coming soon...</p>
+      <h3 className="font-medium">Simulator Sessions ({sessions?.length || 0})</h3>
+      {sessions && sessions.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Country</TableHead>
+              <TableHead>Plan</TableHead>
+              <TableHead>Monthly Clients</TableHead>
+              <TableHead>Monthly Revenue</TableHead>
+              <TableHead>Commission</TableHead>
+              <TableHead>Projected Annual</TableHead>
+              <TableHead>Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sessions.map((session) => (
+              <TableRow key={session.id}>
+                <TableCell>{getCountryFlag(session.country)}</TableCell>
+                <TableCell><Badge variant="outline">{session.plan}</Badge></TableCell>
+                <TableCell>{session.monthly_clients}</TableCell>
+                <TableCell>${session.monthly_revenue.toFixed(2)}</TableCell>
+                <TableCell className="font-medium text-green-600">${session.monthly_commission.toFixed(2)}</TableCell>
+                <TableCell>${session.projected_annual.toFixed(2)}</TableCell>
+                <TableCell className="text-muted-foreground text-sm">{formatDate(session.created_at)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <p className="text-muted-foreground text-sm py-4">No simulator sessions found for this partner.</p>
+      )}
     </div>
   );
 }
