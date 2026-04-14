@@ -17,11 +17,13 @@ export default function AdminLayout({
   const supabase = createClient();
 
   useEffect(() => {
+    if (pathname === '/admin/login') {
+      setIsLoading(false);
+      return;
+    }
+
     async function checkAdmin() {
-      if (pathname === '/admin/login') {
-        setIsLoading(false);
-        return;
-      }
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const { data: { session } } = await supabase.auth.getSession();
 

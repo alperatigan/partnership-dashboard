@@ -47,8 +47,8 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.push('/admin/partners');
-    router.refresh();
+    await new Promise(resolve => setTimeout(resolve, 500));
+    window.location.href = '/admin';
   };
 
   return (
