@@ -120,7 +120,7 @@ export function useCommissions(filters?: { partnerId?: string; status?: string }
     queryFn: async () => {
       let query = supabase
         .from('commissions')
-        .select('*, partners(full_name)')
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (filters?.partnerId) {
@@ -132,9 +132,16 @@ export function useCommissions(filters?: { partnerId?: string; status?: string }
       
       const { data, error } = await query;
       if (error) throw error;
+      
+      const { data: partnersData } = await supabase
+        .from('partners')
+        .select('id, full_name');
+      
+      const partnerMap = new Map((partnersData || []).map(p => [p.id, p.full_name]));
+      
       return (data || []).map((c: any) => ({
         ...c,
-        partner_name: c.partners?.full_name || null,
+        partner_name: partnerMap.get(c.partner_id) || null,
       })) as Commission[];
     },
   });
