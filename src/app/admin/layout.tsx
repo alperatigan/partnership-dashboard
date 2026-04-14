@@ -22,37 +22,43 @@ export default function AdminLayout({
       return;
     }
 
-    async function checkAdmin() {
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session?.user) {
-        alert('Layout: No session found - redirecting to /admin/login');
-        router.push('/admin/login');
-        return;
-      }
-
-      alert('Layout: Session found for user: ' + session.user.id);
-
+    async function checkAdmin(sessionUserId: string) {
       const { data: admin } = await supabase
         .from('admins')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', sessionUserId)
         .single();
 
       if (!admin) {
-        alert('Layout: User ' + session.user.id + ' not found in admins table');
         router.push('/dashboard');
         return;
       }
 
-      alert('Layout: Admin found! Redirecting...');
       setIsAdmin(true);
       setIsLoading(false);
     }
 
-    checkAdmin();
+    async function initAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        await checkAdmin(session.user.id);
+      } else {
+        router.push('/admin/login');
+      }
+    }
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        await checkAdmin(session.user.id);
+      } else if (event === 'SIGNED_OUT' || !session) {
+        router.push('/admin/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [router, pathname]);
 
   if (isLoading) {
