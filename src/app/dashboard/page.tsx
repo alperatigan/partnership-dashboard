@@ -78,13 +78,13 @@ export default function TemsilciDashboardPage() {
         </div>
         <div className="flex gap-3">
           <Button asChild className="font-semibold">
-            <Link href="/dashboard/leads/new">
+            <Link href="/dashboard/leads">
               <Plus className="mr-2 h-4 w-4" />
               New Lead
             </Link>
           </Button>
           <Button variant="outline" asChild className="font-medium border-2">
-            <Link href="/dashboard/demos/new">
+            <Link href="/dashboard/demos">
               <Calendar className="mr-2 h-4 w-4" />
               Log Demo
             </Link>
@@ -373,13 +373,13 @@ export default function TemsilciDashboardPage() {
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
           <Button variant="outline" className="h-auto py-5 flex-col gap-2 border-2 hover:bg-[#F5F7FA]" asChild>
-            <Link href="/dashboard/leads/new">
+            <Link href="/dashboard/leads">
               <Plus className="h-5 w-5 text-[#003087]" />
               <span className="font-medium">Add New Lead</span>
             </Link>
           </Button>
           <Button variant="outline" className="h-auto py-5 flex-col gap-2 border-2 hover:bg-[#F5F7FA]" asChild>
-            <Link href="/dashboard/demos/new">
+            <Link href="/dashboard/demos">
               <Calendar className="h-5 w-5 text-[#003087]" />
               <span className="font-medium">Log Demo</span>
             </Link>
