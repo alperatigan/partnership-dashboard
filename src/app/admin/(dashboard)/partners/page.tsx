@@ -19,6 +19,7 @@ import type { Partner } from '@/types';
 export default function AdminPartnersPage() {
   const { data: stats } = useAdminStats();
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
 
   return (
     <div className="space-y-6">
@@ -93,12 +94,21 @@ export default function AdminPartnersPage() {
 
       <PartnersTable 
         onPartnerClick={setSelectedPartner}
+        onEditPartner={setEditingPartner}
       />
 
       <PartnerDetailModal
         partner={selectedPartner}
         open={!!selectedPartner}
         onOpenChange={(open) => !open && setSelectedPartner(null)}
+        mode="view"
+      />
+
+      <PartnerDetailModal
+        partner={editingPartner}
+        open={!!editingPartner}
+        onOpenChange={(open) => !open && setEditingPartner(null)}
+        mode="edit"
       />
     </div>
   );

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -49,17 +50,20 @@ import {
   BarChart3,
   File,
   Eye,
+  Save,
+  X,
 } from 'lucide-react';
 import { formatCurrency, formatDate, getCountryFlag, getCountryName, getInitials } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { usePartnerNotes, useCreatePartnerNote, useDeletePartnerNote } from '@/hooks/use-company-queries';
-import { useCommissions } from '@/hooks/use-queries';
+import { useCommissions, useUpdatePartner } from '@/hooks/use-queries';
 import type { Partner, Lead, DemoRecord, Payment, PartnerNote } from '@/types';
 
 interface PartnerDetailModalProps {
   partner: Partner | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode?: 'view' | 'edit';
 }
 
 const statusConfig = {
@@ -99,36 +103,28 @@ const commissionStatusConfig: Record<string, { label: string; color: string }> =
   clawback: { label: 'Clawback', color: 'bg-orange-50 text-orange-700 border-orange-200' },
 };
 
-export function PartnerDetailModal({ partner, open, onOpenChange }: PartnerDetailModalProps) {
+export function PartnerDetailModal({ partner, open, onOpenChange, mode = 'view' }: PartnerDetailModalProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState<PartnerNote['note_type']>('general');
+  const [editData, setEditData] = useState<{
+    name?: string;
+    email?: string;
+    country?: string;
+    tier?: string | null;
+    status?: string;
+    company_name?: string | null;
+  }>({});
 
   const { data: notes, isLoading: notesLoading } = usePartnerNotes(partner?.id || '');
   const { data: commissions } = useCommissions(partner?.id ? { partnerId: partner.id } : undefined);
   const createNote = useCreatePartnerNote();
   const deleteNote = useDeletePartnerNote();
+  const updatePartner = useUpdatePartner();
 
-  // Mock data for leads, demos, payments - in real app these would come from hooks
   const [leads] = useState<Lead[]>([]);
   const [demos] = useState<DemoRecord[]>([]);
   const [payments] = useState<Payment[]>([]);
-
-  const handleAddNote = async () => {
-    if (!newNote.trim() || !partner) return;
-    try {
-      await createNote.mutateAsync({
-        partner_id: partner.id,
-        content: newNote.trim(),
-        note_type: noteType,
-        admin_id: null, // Would come from auth context
-      });
-      setNewNote('');
-      setNoteType('general');
-    } catch (error) {
-      console.error('Failed to add note:', error);
-    }
-  };
 
   const handleDeleteNote = async (noteId: string) => {
     if (!partner) return;
@@ -138,6 +134,59 @@ export function PartnerDetailModal({ partner, open, onOpenChange }: PartnerDetai
       console.error('Failed to delete note:', error);
     }
   };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim() || !partner) return;
+    try {
+      await createNote.mutateAsync({
+        partner_id: partner.id,
+        content: newNote.trim(),
+        note_type: noteType,
+        admin_id: null,
+      });
+      setNewNote('');
+      setNoteType('general');
+    } catch (error) {
+      console.error('Failed to add note:', error);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!partner) return;
+    try {
+      await updatePartner.mutateAsync({ id: partner.id, ...editData } as any);
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Failed to update partner:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (partner) {
+      setEditData({
+        name: partner.name,
+        email: partner.email,
+        company_name: partner.company_name,
+        country: partner.country,
+        tier: partner.tier,
+        status: partner.status,
+      });
+    }
+    onOpenChange(false);
+  };
+
+  useEffect(() => {
+    if (partner) {
+      setEditData({
+        name: partner.name,
+        email: partner.email,
+        company_name: partner.company_name,
+        country: partner.country,
+        tier: partner.tier,
+        status: partner.status,
+      });
+    }
+  }, [partner]);
 
   if (!partner) return null;
 
@@ -184,6 +233,18 @@ export function PartnerDetailModal({ partner, open, onOpenChange }: PartnerDetai
             <span className="text-sm text-muted-foreground">
               Joined {formatDate(partner.created_at)}
             </span>
+            {mode === 'edit' && (
+              <div className="flex items-center gap-2 mt-2">
+                <Button variant="outline" size="sm" onClick={handleCancelEdit}>
+                  <X className="h-4 w-4 mr-1" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSaveEdit} disabled={updatePartner.isPending}>
+                  <Save className="h-4 w-4 mr-1" />
+                  Save Changes
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -275,34 +336,80 @@ export function PartnerDetailModal({ partner, open, onOpenChange }: PartnerDetai
                     <CardDescription>Basic partner details</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{partner.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Phone</p>
-                        <p className="font-medium">{partner.country}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Country</p>
-                        <p className="font-medium">{getCountryName(partner.country)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Joined</p>
-                        <p className="font-medium">{formatDate(partner.created_at)}</p>
-                      </div>
-                    </div>
+                    {mode === 'edit' ? (
+                      <>
+                        <div className="space-y-2">
+                          <Label>Full Name</Label>
+                          <Input 
+                            value={editData.name || ''} 
+                            onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Email</Label>
+                          <Input 
+                            value={editData.email || ''} 
+                            onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Company Name</Label>
+                          <Input 
+                            value={editData.company_name || ''} 
+                            onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Tier</Label>
+                          <select 
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                            value={editData.tier || ''}
+                            onChange={(e) => setEditData({ ...editData, tier: e.target.value as any })}
+                          >
+                            <option value="silver">Silver</option>
+                            <option value="gold">Gold</option>
+                            <option value="platinum">Platinum</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Status</Label>
+                          <select 
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                            value={editData.status || ''}
+                            onChange={(e) => setEditData({ ...editData, status: e.target.value as any })}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="suspended">Suspended</option>
+                          </select>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Email</p>
+                            <p className="font-medium">{partner.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Country</p>
+                            <p className="font-medium">{getCountryName(partner.country)}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Joined</p>
+                            <p className="font-medium">{formatDate(partner.created_at)}</p>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 

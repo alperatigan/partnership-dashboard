@@ -38,6 +38,7 @@ import type { Partner } from '@/types';
 
 interface PartnersTableProps {
   onPartnerClick: (partner: Partner) => void;
+  onEditPartner: (partner: Partner) => void;
   onBulkAction?: (action: string, selectedIds: string[]) => void;
 }
 
@@ -54,7 +55,7 @@ const tierConfig = {
   platinum: { label: 'Platinum', color: 'bg-purple-100 text-purple-700' },
 };
 
-export function PartnersTable({ onPartnerClick, onBulkAction }: PartnersTableProps) {
+export function PartnersTable({ onPartnerClick, onEditPartner, onBulkAction }: PartnersTableProps) {
   const { selectedCompany, isAllCompanies } = useCompany();
   const { data: partners, isLoading } = usePartners();
   const [search, setSearch] = useState('');
@@ -315,17 +316,9 @@ export function PartnersTable({ onPartnerClick, onBulkAction }: PartnersTablePro
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEditPartner(partner)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit Partner
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Mail className="h-4 w-4 mr-2" />
-                              Send Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <UserX className="h-4 w-4 mr-2" />
-                              Suspend
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -339,27 +332,7 @@ export function PartnersTable({ onPartnerClick, onBulkAction }: PartnersTablePro
         </CardContent>
       </Card>
 
-      {/* Bulk Actions Bar */}
-      {selectedPartners.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-background border rounded-xl shadow-lg px-6 py-3 flex items-center gap-4 z-50">
-          <span className="text-sm font-medium">
-            {selectedPartners.length} selected
-          </span>
-          <div className="h-6 w-px bg-border" />
-          <Button variant="outline" size="sm">
-            <Mail className="h-4 w-4 mr-2" />
-            Send Email
-          </Button>
-          <Button variant="outline" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Change Status
-          </Button>
-          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-600">
-            <UserX className="h-4 w-4 mr-2" />
-            Suspend
-          </Button>
-        </div>
-      )}
+
     </div>
   );
 }
