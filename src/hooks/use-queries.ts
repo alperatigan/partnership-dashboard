@@ -132,17 +132,7 @@ export function useCommissions(filters?: { partnerId?: string; status?: string }
       
       const { data, error } = await query;
       if (error) throw error;
-      
-      const { data: partnersData } = await supabase
-        .from('partners')
-        .select('id, full_name');
-      
-      const partnerMap = new Map((partnersData || []).map(p => [p.id, p.full_name]));
-      
-      return (data || []).map((c: any) => ({
-        ...c,
-        partner_name: partnerMap.get(c.partner_id) || null,
-      })) as Commission[];
+      return data as Commission[];
     },
   });
 }

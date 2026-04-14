@@ -248,7 +248,7 @@ export default function AdminReportsPage() {
               <thead>
                 <tr className="bg-[#F5F7FA]">
                   <th className="text-left py-3 px-4 font-semibold">Date</th>
-                  <th className="text-left py-3 px-4 font-semibold">Partner</th>
+                  <th className="text-left py-3 px-4 font-semibold">Client</th>
                   <th className="text-right py-3 px-4 font-semibold">Amount</th>
                   <th className="text-right py-3 px-4 font-semibold">Status</th>
                 </tr>
@@ -257,7 +257,7 @@ export default function AdminReportsPage() {
                 {commissions?.slice(0, 10).map((c) => (
                   <tr key={c.id} className="border-b border-border last:border-0">
                     <td className="py-3 px-4 text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</td>
-                    <td className="py-3 px-4 text-foreground">{c.partner_name || 'N/A'}</td>
+                    <td className="py-3 px-4 text-foreground">{c.client_name || 'N/A'}</td>
                     <td className="py-3 px-4 text-right font-semibold text-[#003087]">
                       {formatCurrency(c.amount)}
                     </td>

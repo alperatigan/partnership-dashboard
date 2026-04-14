@@ -99,7 +99,6 @@ export interface Partner {
 export interface Commission {
   id: string;
   partner_id: string;
-  partner_name?: string | null;
   amount: number;
   currency: string;
   status: CommissionStatus;
