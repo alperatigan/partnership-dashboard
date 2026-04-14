@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCompany } from '@/lib/company-context';
 import { usePartners } from '@/hooks/use-queries';
 import { createClient } from '@/lib/supabase/client';
@@ -28,9 +28,13 @@ import {
   Gift,
   Users,
   RefreshCw,
-  X
+  X,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
+  User
 } from 'lucide-react';
-import type { Transaction, TransactionType, TransactionDirection } from '@/types';
+import type { Transaction, TransactionType, TransactionDirection, Lead } from '@/types';
 
 const transactionTypeLabels: Record<TransactionType, string> = {
   commission: 'Commission',
@@ -59,11 +63,6 @@ const transactionTypeIcons: Record<TransactionType, typeof ArrowUpRight> = {
   other: ArrowLeftRight
 };
 
-const directionColors: Record<TransactionDirection, string> = {
-  income: 'text-green-600',
-  expense: 'text-red-600'
-};
-
 const directionLabels: Record<TransactionDirection, string> = {
   income: 'Income',
   expense: 'Expense'
@@ -72,25 +71,50 @@ const directionLabels: Record<TransactionDirection, string> = {
 export default function AdminActivityPage() {
   const { selectedCompany, isAllCompanies } = useCompany();
   const { data: partners } = usePartners();
+  const supabase = createClient();
+  
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [customers, setCustomers] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
   
-  // Filters
+  // Filter states
+  const [showFilters, setShowFilters] = useState(true);
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [directionFilter, setDirectionFilter] = useState<string>('all');
   const [partnerFilter, setPartnerFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<string>('all');
+  const [customerFilter, setCustomerFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Date range states
+  const [dateRange, setDateRange] = useState<string>('all');
+  const [customStartDate, setCustomStartDate] = useState<string>('');
+  const [customEndDate, setCustomEndDate] = useState<string>('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const limit = 20;
   const offset = (page - 1) * limit;
 
+  // Fetch customers for dropdown
+  useEffect(() => {
+    async function fetchCustomers() {
+      const { data } = await supabase
+        .from('leads')
+        .select('id, clinic_name, contact_name, country')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      
+      if (data) {
+        setCustomers(data as Lead[]);
+      }
+    }
+    fetchCustomers();
+  }, [supabase]);
+
   const fetchTransactions = async () => {
     setIsLoading(true);
-    const supabase = createClient();
     
     let query = supabase
       .from('transactions_with_details')
@@ -110,7 +134,10 @@ export default function AdminActivityPage() {
     if (partnerFilter !== 'all') {
       query = query.eq('partner_id', partnerFilter);
     }
-    if (dateRange !== 'all') {
+    if (dateRange === 'custom' && customStartDate && customEndDate) {
+      query = query.gte('created_at', new Date(customStartDate).toISOString());
+      query = query.lte('created_at', new Date(customEndDate + 'T23:59:59').toISOString());
+    } else if (dateRange !== 'all') {
       const now = new Date();
       let startDate: Date;
       switch (dateRange) {
@@ -144,46 +171,13 @@ export default function AdminActivityPage() {
     setIsLoading(false);
   };
 
-  useState(() => {
+  useEffect(() => {
     fetchTransactions();
-  });
+  }, [selectedCompany, isAllCompanies, typeFilter, directionFilter, partnerFilter, customerFilter, dateRange, customStartDate, customEndDate, page]);
 
-  useMemo(() => {
-    fetchTransactions();
-  }, [selectedCompany, isAllCompanies, typeFilter, directionFilter, partnerFilter, dateRange, page]);
-
-  const handleExport = async (exportType: 'all' | 'monthly' | 'yearly' | 'custom') => {
+  const handleExport = async () => {
     setIsExporting(true);
-    const supabase = createClient();
     
-    let startDate: string | null = null;
-    let endDate: string | null = null;
-    
-    if (exportType === 'monthly') {
-      const now = new Date();
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
-    } else if (exportType === 'yearly') {
-      const now = new Date();
-      startDate = new Date(now.getFullYear(), 0, 1).toISOString();
-      endDate = new Date(now.getFullYear(), 11, 31).toISOString();
-    } else if (exportType === 'custom' && dateRange !== 'all') {
-      const now = new Date();
-      switch (dateRange) {
-        case '7d':
-          startDate = new Date(now.setDate(now.getDate() - 7)).toISOString();
-          endDate = new Date().toISOString();
-          break;
-        case '30d':
-          startDate = new Date(now.setDate(now.getDate() - 30)).toISOString();
-          endDate = new Date().toISOString();
-          break;
-        default:
-          startDate = null;
-          endDate = null;
-      }
-    }
-
     let query = supabase
       .from('transactions_with_details')
       .select('*')
@@ -201,11 +195,32 @@ export default function AdminActivityPage() {
     if (partnerFilter !== 'all') {
       query = query.eq('partner_id', partnerFilter);
     }
-    if (startDate) {
-      query = query.gte('created_at', startDate);
-    }
-    if (endDate) {
-      query = query.lte('created_at', endDate);
+    if (dateRange === 'custom' && customStartDate && customEndDate) {
+      query = query.gte('created_at', new Date(customStartDate).toISOString());
+      query = query.lte('created_at', new Date(customEndDate + 'T23:59:59').toISOString());
+    } else if (dateRange !== 'all') {
+      const now = new Date();
+      let startDate: Date;
+      switch (dateRange) {
+        case '7d':
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case '30d':
+          startDate = new Date(now.setDate(now.getDate() - 30));
+          break;
+        case '90d':
+          startDate = new Date(now.setDate(now.getDate() - 90));
+          break;
+        case '6m':
+          startDate = new Date(now.setMonth(now.getMonth() - 6));
+          break;
+        case '1y':
+          startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+          break;
+        default:
+          startDate = new Date(0);
+      }
+      query = query.gte('created_at', startDate.toISOString());
     }
 
     const { data } = await query;
@@ -229,7 +244,7 @@ export default function AdminActivityPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `transactions-${exportType}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      a.download = `transactions-${dateRange}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -250,12 +265,15 @@ export default function AdminActivityPage() {
     setTypeFilter('all');
     setDirectionFilter('all');
     setPartnerFilter('all');
+    setCustomerFilter('all');
     setDateRange('all');
+    setCustomStartDate('');
+    setCustomEndDate('');
     setSearchQuery('');
     setPage(1);
   };
 
-  const hasActiveFilters = typeFilter !== 'all' || directionFilter !== 'all' || partnerFilter !== 'all' || dateRange !== 'all' || searchQuery;
+  const hasActiveFilters = typeFilter !== 'all' || directionFilter !== 'all' || partnerFilter !== 'all' || customerFilter !== 'all' || dateRange !== 'all' || searchQuery || ((dateRange as string) === 'custom' && customStartDate && customEndDate);
 
   const totalPages = Math.ceil(count / limit);
   const totalIncome = transactions.filter(t => t.direction === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -273,17 +291,9 @@ export default function AdminActivityPage() {
         </div>
         <div className="flex gap-2">
           <TransactionDialog onSuccess={fetchTransactions} />
-          <Button variant="outline" onClick={() => handleExport('monthly')} disabled={isExporting}>
+          <Button variant="outline" onClick={handleExport} disabled={isExporting}>
             <Download className="h-4 w-4 mr-2" />
-            Monthly
-          </Button>
-          <Button variant="outline" onClick={() => handleExport('yearly')} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2" />
-            Yearly
-          </Button>
-          <Button variant="outline" onClick={() => handleExport('custom')} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2" />
-            Current Filter
+            Export CSV
           </Button>
         </div>
       </div>
@@ -334,73 +344,153 @@ export default function AdminActivityPage() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Collapsible Filter Section */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <Input
-                placeholder="Search partner, description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-lg font-semibold">Filters</CardTitle>
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-2">{count} results</Badge>
+              )}
             </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="commission">Commission</SelectItem>
-                <SelectItem value="demo_bonus">Demo Bonus</SelectItem>
-                <SelectItem value="setup_fee">Setup Fee</SelectItem>
-                <SelectItem value="customer_payment">Customer Payment</SelectItem>
-                <SelectItem value="refund">Refund</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={directionFilter} onValueChange={setDirectionFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Direction" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Directions</SelectItem>
-                <SelectItem value="income">Income</SelectItem>
-                <SelectItem value="expense">Expense</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={partnerFilter} onValueChange={setPartnerFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Partner" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Partners</SelectItem>
-                {partners?.map(partner => (
-                  <SelectItem key={partner.id} value={partner.id}>{partner.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="w-[140px]">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Date Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="6m">Last 6 months</SelectItem>
-                <SelectItem value="1y">Last year</SelectItem>
-              </SelectContent>
-            </Select>
-            {hasActiveFilters && (
-              <Button variant="ghost" size="icon" onClick={clearFilters}>
-                <X className="h-4 w-4" />
+            <div className="flex items-center gap-2">
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  <X className="h-4 w-4 mr-1" />
+                  Clear
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={() => setShowFilters(!showFilters)}>
+                {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {showFilters ? 'Hide' : 'Show'}
               </Button>
-            )}
+            </div>
           </div>
-        </CardContent>
+        </CardHeader>
+        
+        {showFilters && (
+          <CardContent className="pt-0">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              {/* Search */}
+              <div className="lg:col-span-2">
+                <Input
+                  placeholder="Search partner, description..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              {/* Type Filter */}
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="commission">Commission</SelectItem>
+                  <SelectItem value="demo_bonus">Demo Bonus</SelectItem>
+                  <SelectItem value="setup_fee">Setup Fee</SelectItem>
+                  <SelectItem value="customer_payment">Customer Payment</SelectItem>
+                  <SelectItem value="refund">Refund</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Direction Filter */}
+              <Select value={directionFilter} onValueChange={setDirectionFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Direction" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Directions</SelectItem>
+                  <SelectItem value="income">Income</SelectItem>
+                  <SelectItem value="expense">Expense</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Partner Filter */}
+              <Select value={partnerFilter} onValueChange={setPartnerFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Partner" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Partners</SelectItem>
+                  {partners?.map(partner => (
+                    <SelectItem key={partner.id} value={partner.id}>{partner.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-4 mt-4 md:grid-cols-3">
+              {/* Customer Filter */}
+              <Select value={customerFilter} onValueChange={setCustomerFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Customer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Customers</SelectItem>
+                  {customers.map(customer => (
+                    <SelectItem key={customer.id} value={customer.id}>
+                      {customer.clinic_name} ({customer.contact_name || 'No contact'})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Date Range Presets */}
+              <Select value={dateRange} onValueChange={setDateRange}>
+                <SelectTrigger>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Date Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="7d">Last 7 days</SelectItem>
+                  <SelectItem value="30d">Last 30 days</SelectItem>
+                  <SelectItem value="90d">Last 90 days</SelectItem>
+                  <SelectItem value="6m">Last 6 months</SelectItem>
+                  <SelectItem value="1y">Last year</SelectItem>
+                  <SelectItem value="custom">Custom Range...</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Custom Date Range */}
+              {dateRange === 'custom' && (
+                <div className="flex gap-2 items-center">
+                  <Input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="w-[150px]"
+                    placeholder="Start"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <Input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="w-[150px]"
+                    placeholder="End"
+                  />
+                </div>
+              )}
+              
+              {/* Active Date Display */}
+              {dateRange !== 'all' && dateRange !== 'custom' && (
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {dateRange === '7d' && 'Last 7 days'}
+                  {dateRange === '30d' && 'Last 30 days'}
+                  {dateRange === '90d' && 'Last 90 days'}
+                  {dateRange === '6m' && 'Last 6 months'}
+                  {dateRange === '1y' && 'Last year'}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Transactions Table */}
@@ -411,7 +501,7 @@ export default function AdminActivityPage() {
               <thead className="bg-[#F5F7FA] border-b border-border">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Partner</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Party</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Description</th>
                   <th className="px-6 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Amount</th>
@@ -445,11 +535,32 @@ export default function AdminActivityPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-foreground">
-                            {transaction.partner_name || 'N/A'}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {transaction.company_name}
+                          <div className="flex items-center gap-2">
+                            {transaction.partner_id ? (
+                              <>
+                                <Users className="h-4 w-4 text-[#003087]" />
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    {transaction.partner_name || 'Unknown Partner'}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Partner
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <User className="h-4 w-4 text-amber-600" />
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    Customer
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {transaction.company_name || 'N/A'}
+                                  </div>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

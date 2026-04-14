@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 
 export function CompanySwitcher() {
   const companyContext = useCompany();
-  const { data: companies } = useCompanies();
+  const { data: companies, isLoading } = useCompanies();
   
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
