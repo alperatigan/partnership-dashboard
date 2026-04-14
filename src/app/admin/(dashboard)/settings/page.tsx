@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
-import { Save, RefreshCw, DollarSign, TrendingUp, Users } from 'lucide-react';
+import { Save, Settings, TrendingUp, Users, Percent } from 'lucide-react';
 import { useCountryPricing } from '@/hooks/use-queries';
 import type { Country, Plan } from '@/types';
 
@@ -18,7 +18,6 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Pricing state (in real app, this would come from database)
   const [pricingData, setPricingData] = useState({
     PH: {
       currency: 'PHP',
@@ -59,7 +58,6 @@ export default function AdminSettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    // Simulate API call
     await new Promise((r) => setTimeout(r, 1000));
     setSaving(false);
     setSaved(true);
@@ -79,26 +77,24 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif">Settings</h1>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         <p className="text-muted-foreground mt-1">
           Configure system settings and parameters
         </p>
       </div>
 
       <Tabs defaultValue="pricing" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="pricing">Pricing</TabsTrigger>
-          <TabsTrigger value="commissions">Commission Tiers</TabsTrigger>
+        <TabsList className="bg-[#F5F7FA]">
+          <TabsTrigger value="pricing" className="data-[state=active]:bg-[#003087] data-[state=active]:text-white">Pricing</TabsTrigger>
+          <TabsTrigger value="commissions" className="data-[state=active]:bg-[#003087] data-[state=active]:text-white">Commission Tiers</TabsTrigger>
         </TabsList>
 
-        {/* Pricing Tab */}
         <TabsContent value="pricing" className="space-y-6">
-          <Card>
+          <Card className="border border-border">
             <CardHeader>
-              <CardTitle>Country Pricing Configuration</CardTitle>
+              <CardTitle className="text-lg font-semibold">Country Pricing Configuration</CardTitle>
               <CardDescription>
                 Set pricing for each market. FX rates are used to calculate local prices from USD.
               </CardDescription>
@@ -108,13 +104,13 @@ export default function AdminSettingsPage() {
                 <div key={country} className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{flags[country]}</span>
-                    <h3 className="font-semibold text-lg">{countryNames[country]}</h3>
-                    <Badge variant="outline">{pricingData[country].currency}</Badge>
+                    <h3 className="font-semibold text-lg text-foreground">{countryNames[country]}</h3>
+                    <Badge className="bg-[#003087]/10 text-[#003087] border-[#003087]/20">{pricingData[country].currency}</Badge>
                   </div>
                   
                   <div className="grid gap-4 md:grid-cols-4">
                     <div className="space-y-2">
-                      <Label>FX Rate (to USD)</Label>
+                      <Label className="text-foreground">FX Rate (to USD)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -134,11 +130,11 @@ export default function AdminSettingsPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     {(['starter', 'professional', 'enterprise'] as Plan[]).map((plan) => (
-                      <Card key={plan} className="p-4">
-                        <h4 className="font-medium capitalize mb-3">{plan}</h4>
+                      <Card key={plan} className="border border-border p-4">
+                        <h4 className="font-medium capitalize mb-3 text-foreground">{plan}</h4>
                         <div className="space-y-3">
                           <div className="space-y-1">
-                            <Label className="text-xs">USD Price</Label>
+                            <Label className="text-xs text-muted-foreground">USD Price</Label>
                             <Input
                               type="number"
                               value={pricingData[country].plans[plan].usd}
@@ -160,12 +156,12 @@ export default function AdminSettingsPage() {
                             />
                           </div>
                           <div className="space-y-1">
-                            <Label className="text-xs">Local Price</Label>
+                            <Label className="text-xs text-muted-foreground">Local Price</Label>
                             <Input
                               type="number"
                               value={pricingData[country].plans[plan].local}
                               disabled
-                              className="bg-muted"
+                              className="bg-[#F5F7FA]"
                             />
                           </div>
                         </div>
@@ -178,42 +174,41 @@ export default function AdminSettingsPage() {
               ))}
 
               <div className="flex items-center gap-4 pt-4">
-                <Button onClick={handleSave} disabled={saving}>
+                <Button onClick={handleSave} disabled={saving} className="font-semibold bg-[#00A303] hover:bg-[#00A303]/90">
                   <Save className="mr-2 h-4 w-4" />
                   {saving ? 'Saving...' : 'Save Pricing'}
                 </Button>
                 {saved && (
-                  <span className="text-sm text-green-600">Settings saved!</span>
+                  <span className="text-sm text-[#00A303]">Settings saved!</span>
                 )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Commission Tiers Tab */}
         <TabsContent value="commissions" className="space-y-6">
-          <Card>
+          <Card className="border border-border">
             <CardHeader>
-              <CardTitle>Commission Tier Configuration</CardTitle>
+              <CardTitle className="text-lg font-semibold">Commission Tier Configuration</CardTitle>
               <CardDescription>
                 Set commission percentages for each tier. Partners are upgraded based on quarterly deal count.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-6 md:grid-cols-3">
-                <Card className="border-gray-200">
+                <Card className="border border-border">
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                        <span className="text-sm font-bold">Ag</span>
+                      <div className="w-10 h-10 rounded-full bg-[#9CA3AF]/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-[#6B7280]">Ag</span>
                       </div>
                       <div>
-                        <h4 className="font-semibold">Silver</h4>
+                        <h4 className="font-semibold text-foreground">Silver</h4>
                         <p className="text-xs text-muted-foreground">Default tier</p>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Commission Rate</Label>
+                      <Label className="text-foreground">Commission Rate</Label>
                       <div className="flex items-center gap-2">
                         <Input
                           type="number"
@@ -232,19 +227,19 @@ export default function AdminSettingsPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-yellow-200">
+                <Card className="border border-[#FFC439]/30">
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                        <span className="text-sm font-bold text-yellow-700">Au</span>
+                      <div className="w-10 h-10 rounded-full bg-[#FFC439]/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-[#B8860B]">Au</span>
                       </div>
                       <div>
-                        <h4 className="font-semibold">Gold</h4>
+                        <h4 className="font-semibold text-foreground">Gold</h4>
                         <p className="text-xs text-muted-foreground">Mid tier</p>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Commission Rate</Label>
+                      <Label className="text-foreground">Commission Rate</Label>
                       <div className="flex items-center gap-2">
                         <Input
                           type="number"
@@ -260,7 +255,7 @@ export default function AdminSettingsPage() {
                         <span className="text-muted-foreground">%</span>
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Min deals/quarter</Label>
+                        <Label className="text-xs text-muted-foreground">Min deals/quarter</Label>
                         <Input
                           type="number"
                           value={commissionTiers.minGold}
@@ -276,19 +271,19 @@ export default function AdminSettingsPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-blue-200">
+                <Card className="border border-[#003087]/20">
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-sm font-bold text-blue-700">Pt</span>
+                      <div className="w-10 h-10 rounded-full bg-[#003087]/10 flex items-center justify-center">
+                        <span className="text-sm font-bold text-[#003087]">Pt</span>
                       </div>
                       <div>
-                        <h4 className="font-semibold">Platinum</h4>
+                        <h4 className="font-semibold text-foreground">Platinum</h4>
                         <p className="text-xs text-muted-foreground">Top tier</p>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Commission Rate</Label>
+                      <Label className="text-foreground">Commission Rate</Label>
                       <div className="flex items-center gap-2">
                         <Input
                           type="number"
@@ -304,7 +299,7 @@ export default function AdminSettingsPage() {
                         <span className="text-muted-foreground">%</span>
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Min deals/quarter</Label>
+                        <Label className="text-xs text-muted-foreground">Min deals/quarter</Label>
                         <Input
                           type="number"
                           value={commissionTiers.minPlatinum}
@@ -322,12 +317,12 @@ export default function AdminSettingsPage() {
               </div>
 
               <div className="flex items-center gap-4 pt-4">
-                <Button onClick={handleSave} disabled={saving}>
+                <Button onClick={handleSave} disabled={saving} className="font-semibold bg-[#00A303] hover:bg-[#00A303]/90">
                   <Save className="mr-2 h-4 w-4" />
                   {saving ? 'Saving...' : 'Save Tiers'}
                 </Button>
                 {saved && (
-                  <span className="text-sm text-green-600">Settings saved!</span>
+                  <span className="text-sm text-[#00A303]">Settings saved!</span>
                 )}
               </div>
             </CardContent>
