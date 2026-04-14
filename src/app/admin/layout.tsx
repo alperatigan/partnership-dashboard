@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,20 +10,24 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useAuth(true);
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     async function checkAdmin() {
-      if (!user || !isLoading) return;
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.user) {
+        router.push('/admin/login');
+        return;
+      }
 
       const { data: admin } = await supabase
         .from('admins')
         .select('*')
-        .eq('user_id', user.user_id)
+        .eq('user_id', session.user.id)
         .single();
 
       if (!admin) {
@@ -33,37 +36,16 @@ export default function AdminLayout({
       }
 
       setIsAdmin(true);
-      setCheckingAdmin(false);
+      setIsLoading(false);
     }
 
     checkAdmin();
-  }, [user, isLoading, router]);
+  }, [router]);
 
-  if (isLoading || checkingAdmin) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please login to access admin panel.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <button
-              onClick={() => router.push('/admin/login')}
-              className="w-full h-10 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
-              Go to Admin Login
-            </button>
-          </CardContent>
-        </Card>
       </div>
     );
   }
