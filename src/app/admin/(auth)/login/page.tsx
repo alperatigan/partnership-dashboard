@@ -51,7 +51,8 @@ export default function AdminLoginPage() {
       return;
     }
 
-    await supabase.auth.refreshSession();
+    alert('Login successful! Redirecting to admin dashboard...');
+    await new Promise(resolve => setTimeout(resolve, 1500));
     window.location.href = '/admin';
   };
 

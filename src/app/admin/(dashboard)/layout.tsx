@@ -33,6 +33,7 @@ export default function AdminDashboardLayout({
     }
 
     async function initAuth() {
+      await new Promise(resolve => setTimeout(resolve, 200));
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
