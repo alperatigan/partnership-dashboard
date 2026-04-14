@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useCompany } from '@/lib/company-context';
 import { useAdminStatsByCompany } from '@/hooks/use-company-queries';
 import { usePartners, useCommissions } from '@/hooks/use-queries';
@@ -7,16 +8,34 @@ import { useDemoRecords, useLeads } from '@/hooks/use-crm-queries';
 import { 
   Users, 
   DollarSign, 
-  Calendar, 
+  Calendar,
   AlertTriangle,
   TrendingUp
 } from 'lucide-react';
 import { StatsCard, RevenueChart, PartnerGrowthChart, ActivityFeed, UpcomingPayments } from '@/components/admin/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatCurrency } from '@/lib/utils';
 import type { Partner, Commission, DemoRecord } from '@/types';
 
+const MONTHS = [
+  { value: 'all', label: 'All Time' },
+  { value: '0', label: 'January' },
+  { value: '1', label: 'February' },
+  { value: '2', label: 'March' },
+  { value: '3', label: 'April' },
+  { value: '4', label: 'May' },
+  { value: '5', label: 'June' },
+  { value: '6', label: 'July' },
+  { value: '7', label: 'August' },
+  { value: '8', label: 'September' },
+  { value: '9', label: 'October' },
+  { value: '10', label: 'November' },
+  { value: '11', label: 'December' },
+];
+
 export default function AdminDashboardPage() {
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const { selectedCompany, isAllCompanies } = useCompany();
   const { data: stats } = useAdminStatsByCompany();
   const { data: partners } = usePartners();
@@ -45,13 +64,27 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          {isAllCompanies 
-            ? 'Overview of all companies' 
-            : `Overview for ${selectedCompany?.name}`}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            {isAllCompanies 
+              ? 'Overview of all companies' 
+              : `Overview for ${selectedCompany?.name}`}
+          </p>
+        </div>
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select month" />
+          </SelectTrigger>
+          <SelectContent>
+            {MONTHS.map((month) => (
+              <SelectItem key={month.value} value={month.value}>
+                {month.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Stats Cards */}
