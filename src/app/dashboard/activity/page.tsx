@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
 import { createClient } from '@/lib/supabase/client';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +17,6 @@ import {
 import {
   ArrowUpRight,
   ArrowDownRight,
-  ArrowLeftRight,
-  Download,
   Filter,
   Calendar,
   TrendingUp,
@@ -53,7 +50,7 @@ const transactionTypeIcons: Record<TransactionType, typeof ArrowUpRight> = {
   setup_fee: RefreshCw,
   customer_payment: ArrowUpRight,
   refund: RefreshCw,
-  other: ArrowLeftRight
+  other: RefreshCw
 };
 
 const directionLabels: Record<TransactionDirection, string> = {
@@ -67,9 +64,7 @@ export default function PartnerActivityPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
-  const [isExporting, setIsExporting] = useState(false);
   
-  // Filters
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [directionFilter, setDirectionFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('all');
@@ -131,69 +126,6 @@ export default function PartnerActivityPage() {
     fetchTransactions();
   }, [typeFilter, directionFilter, dateRange, page]);
 
-  const handleExport = async (exportType: 'all' | 'monthly' | 'yearly' | 'custom') => {
-    setIsExporting(true);
-    
-    let query = supabase
-      .from('transactions_with_details')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (typeFilter !== 'all') {
-      query = query.eq('type', typeFilter);
-    }
-    if (directionFilter !== 'all') {
-      query = query.eq('direction', directionFilter);
-    }
-
-    if (exportType === 'monthly') {
-      const now = new Date();
-      query = query.gte('created_at', new Date(now.getFullYear(), now.getMonth(), 1).toISOString());
-      query = query.lte('created_at', new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString());
-    } else if (exportType === 'yearly') {
-      const now = new Date();
-      query = query.gte('created_at', new Date(now.getFullYear(), 0, 1).toISOString());
-      query = query.lte('created_at', new Date(now.getFullYear(), 11, 31).toISOString());
-    } else if (exportType === 'custom' && dateRange !== 'all') {
-      const now = new Date();
-      switch (dateRange) {
-        case '7d':
-          query = query.gte('created_at', new Date(now.setDate(now.getDate() - 7)).toISOString());
-          break;
-        case '30d':
-          query = query.gte('created_at', new Date(now.setDate(now.getDate() - 30)).toISOString());
-          break;
-        default:
-          break;
-      }
-    }
-
-    const { data } = await query;
-
-    if (data) {
-      const csvHeaders = ['Date', 'Type', 'Direction', 'Amount', 'Currency', 'Description', 'Reference', 'Status'];
-      const csvRows = (data as Transaction[]).map(t => [
-        format(new Date(t.created_at), 'yyyy-MM-dd HH:mm'),
-        t.type,
-        t.direction,
-        t.amount.toFixed(2),
-        t.currency,
-        t.description || '',
-        t.reference || '',
-        t.status
-      ].join(','));
-      const csv = [csvHeaders.join(','), ...csvRows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `my-transactions-${exportType}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-    setIsExporting(false);
-  };
-
   const filteredTransactions = useMemo(() => {
     if (!searchQuery) return transactions;
     const q = searchQuery.toLowerCase();
@@ -220,31 +152,15 @@ export default function PartnerActivityPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Activity</h1>
-          <p className="text-muted-foreground">
-            Your transaction history and money movements
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleExport('monthly')} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2" />
-            Monthly
-          </Button>
-          <Button variant="outline" onClick={() => handleExport('yearly')} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2" />
-            Yearly
-          </Button>
-          <Button variant="outline" onClick={() => handleExport('custom')} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2" />
-            Current Filter
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold">Activity</h1>
+        <p className="text-muted-foreground">
+          Your transaction history and money movements
+        </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Summary Cards - Only Income/Expense */}
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
@@ -265,26 +181,6 @@ export default function PartnerActivityPage() {
             <div className="text-2xl font-bold text-red-600">
               ${totalExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Net</CardTitle>
-            <ArrowLeftRight className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${totalIncome - totalExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${(totalIncome - totalExpense).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Transactions</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{count}</div>
           </CardContent>
         </Card>
       </div>

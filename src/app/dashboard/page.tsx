@@ -278,7 +278,7 @@ export default function TemsilciDashboardPage() {
               <div className="text-center py-8 text-muted-foreground">
                 <p>No leads yet</p>
                 <Button asChild variant="link" className="mt-2 text-[#003087]">
-                  <Link href="/dashboard/leads/new">Add your first lead</Link>
+                  <Link href="/dashboard/leads">Add your first lead</Link>
                 </Button>
               </div>
             )}
