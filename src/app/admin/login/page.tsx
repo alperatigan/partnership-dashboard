@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
 
     alert('Admin found! ID: ' + admin.user_id + ' - Redirecting to /admin');
     await new Promise(resolve => setTimeout(resolve, 1000));
-    window.location.href = '/admin';
+    router.push('/admin');
   };
 
   return (
