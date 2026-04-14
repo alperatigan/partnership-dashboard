@@ -12,6 +12,15 @@ Font.register({
   ],
 });
 
+type ReportType = 'transaction_activity' | 'commission_summary' | 'partner_performance' | 'demo_prospective';
+
+const reportTypeLabels: Record<ReportType, string> = {
+  transaction_activity: 'Islem Aktivite Raporu',
+  commission_summary: 'Komisyon Ozet Raporu',
+  partner_performance: 'Partner Performans Raporu',
+  demo_prospective: 'Demo & Potansiyel Musteri Raporu',
+};
+
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -202,9 +211,13 @@ interface ReportPDFProps {
     count: number;
   };
   companyName?: string;
+  reportType?: ReportType;
+  reportTitle?: string;
 }
 
-export function TransactionReportPDF({ transactions, dateRange, summary, companyName }: ReportPDFProps) {
+export function TransactionReportPDF({ transactions, dateRange, summary, companyName, reportType = 'transaction_activity', reportTitle }: ReportPDFProps) {
+  const title = reportTitle || reportTypeLabels[reportType];
+
   const formatCurrency = (amount: number, currency: string = 'USD') => {
     const symbols: Record<string, string> = {
       USD: '$',
@@ -236,12 +249,11 @@ export function TransactionReportPDF({ transactions, dateRange, summary, company
   };
 
   const rowsPerPage = 20;
-  const totalPages = Math.ceil(transactions.length / rowsPerPage) || 1;
 
   const renderHeaderRow = () => (
     <View style={styles.tableHeader}>
       <Text style={[styles.tableCell, styles.cellDate]}>Tarih</Text>
-      <Text style={[styles.tableCell, styles.cellParty]}>Taraf</Text>
+      <Text style={[styles.tableCell, styles.cellParty]}>Partner</Text>
       <Text style={[styles.tableCell, styles.cellType]}>Tip</Text>
       <Text style={[styles.tableCell, styles.cellDescription]}>Aciklama</Text>
       <Text style={[styles.tableCell, styles.cellAmount]}>Tutar</Text>
@@ -283,7 +295,7 @@ export function TransactionReportPDF({ transactions, dateRange, summary, company
     <Page key={`page-${pageIndex}`} size="A4" style={styles.page}>
       <View style={styles.header}>
         <Text style={styles.companyTitle}>{companyName || 'ClinixGlow & Graftscope'}</Text>
-        <Text style={styles.reportTitle}>Islem Aktivite Raporu</Text>
+        <Text style={styles.reportTitle}>{title}</Text>
         <Text style={styles.metaInfo}>
           Tarih Araligi: {dateRange.startDate && dateRange.endDate 
             ? `${format(new Date(dateRange.startDate), 'dd/MM/yyyy')} - ${format(new Date(dateRange.endDate), 'dd/MM/yyyy')}`

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TransactionDialog } from '@/components/admin/transaction-dialog';
+import { ReportDialog } from '@/components/admin/report-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -310,14 +311,7 @@ export default function AdminActivityPage() {
         </div>
         <div className="flex gap-2">
           <TransactionDialog onSuccess={fetchTransactions} />
-          <Button variant="outline" onClick={handleExport} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button variant="outline" onClick={handleDownloadPDF} disabled={isExporting}>
-            <FileText className="h-4 w-4 mr-2" />
-            Download PDF
-          </Button>
+          <ReportDialog />
         </div>
       </div>
 
