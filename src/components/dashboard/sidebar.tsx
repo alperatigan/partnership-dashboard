@@ -29,6 +29,7 @@ import {
   Calendar,
   CreditCard,
   FileText,
+  Bell,
 } from 'lucide-react';
 import { useAppStore } from '@/hooks/use-store';
 
@@ -44,6 +45,8 @@ const navigation = [
 
 const adminNavigation = [
   { name: 'Partners', href: '/admin/partners', icon: Users },
+  { name: 'Demos', href: '/admin/demos', icon: Calendar },
+  { name: 'Alerts', href: '/admin/alerts', icon: Bell },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
