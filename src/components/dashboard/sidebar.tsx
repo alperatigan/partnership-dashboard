@@ -44,9 +44,7 @@ const navigation = [
 ];
 
 const adminNavigation = [
-  { name: 'Partners', href: '/admin/partners', icon: Users },
-  { name: 'Demos', href: '/admin/demos', icon: Calendar },
-  { name: 'Alerts', href: '/admin/alerts', icon: Bell },
+  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

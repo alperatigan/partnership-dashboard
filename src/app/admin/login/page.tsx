@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuth();
   const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,11 +50,6 @@ export default function AdminLoginPage() {
     router.push('/admin/partners');
     router.refresh();
   };
-
-  if (user) {
-    router.push('/admin/partners');
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
