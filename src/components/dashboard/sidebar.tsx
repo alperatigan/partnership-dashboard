@@ -26,6 +26,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Activity,
 } from 'lucide-react';
 import { useAppStore } from '@/hooks/use-store';
 
@@ -36,6 +37,7 @@ const navigation = [
   { name: 'Commissions', href: '/dashboard/commissions', icon: DollarSign },
   { name: 'Payments', href: '/dashboard/payments', icon: CreditCard },
   { name: 'Documents', href: '/dashboard/documents', icon: FileText },
+  { name: 'Activity', href: '/dashboard/activity', icon: Activity },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
 ];
 

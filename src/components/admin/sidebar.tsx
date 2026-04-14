@@ -9,7 +9,8 @@ import {
   Bell, 
   BarChart3, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from 'lucide-react';
 import { CompanySwitcher } from './company-switcher';
 import { useCompany } from '@/lib/company-context';
@@ -22,6 +23,7 @@ const navItems = [
   { href: '/admin/demos', icon: Calendar, label: 'Demos' },
   { href: '/admin/alerts', icon: Bell, label: 'Alerts' },
   { href: '/admin/reports', icon: BarChart3, label: 'Reports' },
+  { href: '/admin/activity', icon: Activity, label: 'Activity' },
 ];
 
 export function AdminSidebar() {

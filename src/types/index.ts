@@ -21,6 +21,11 @@ export type PaymentType = 'commission' | 'bonus' | 'clawback' | 'refund';
 
 export type PaymentMethod = 'wise' | 'payoneer' | 'gcash' | 'bank_transfer';
 
+// Transaction types
+export type TransactionType = 'commission' | 'demo_bonus' | 'setup_fee' | 'customer_payment' | 'refund' | 'other';
+export type TransactionDirection = 'income' | 'expense';
+export type TransactionStatus = 'pending' | 'completed' | 'cancelled';
+
 // ============ COMPANY TYPES ============
 
 export interface Company {
@@ -230,6 +235,28 @@ export interface Payment {
   updated_at: string;
   company_id?: string | null;
   company_name?: string | null;
+}
+
+export interface Transaction {
+  id: string;
+  company_id: string | null;
+  partner_id: string | null;
+  type: TransactionType;
+  direction: TransactionDirection;
+  amount: number;
+  currency: string;
+  description: string | null;
+  reference: string | null;
+  status: TransactionStatus;
+  recorded_by: string | null;
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, unknown>;
+  partner_name?: string | null;
+  partner_email?: string | null;
+  partner_tier?: string | null;
+  company_name?: string | null;
+  company_color?: string | null;
 }
 
 export interface PartnerChecklist {
