@@ -140,59 +140,6 @@ export default function PaymentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Payment Method</CardTitle>
-          <CardDescription>
-            Choose how you want to receive your payments. Minimum payout is $100.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {(['wise', 'payoneer', 'gcash', 'bank_transfer'] as PaymentMethod[]).map((method) => {
-                const config = methodConfig[method];
-                const Icon = config.icon;
-                const isSelected = paymentMethod === method;
-
-                return (
-                  <button
-                    key={method}
-                    onClick={() => setPaymentMethod(method)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors ${
-                      isSelected
-                        ? 'border-primary bg-primary/5'
-                        : 'border-muted hover:border-primary/50'
-                    }`}
-                  >
-                    <Icon className={`h-6 w-6 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <span className="text-sm font-medium">{config.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-orange-500" />
-                <div>
-                  <p className="font-medium">Minimum Payout Threshold</p>
-                  <p className="text-sm text-muted-foreground">
-                    Payments are processed when your balance reaches $100
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">$100</p>
-                <p className="text-sm text-muted-foreground">minimum</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-        </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Payment History</CardTitle>
           <CardDescription>
             {payments?.length || 0} payment{payments?.length !== 1 ? 's' : ''} total
