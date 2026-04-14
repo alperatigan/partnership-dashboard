@@ -207,7 +207,7 @@ export default function TemsilciDashboardPage() {
             <CardContent>
               <Table>
                 <TableBody>
-                  {expiringLeads.map((lead: any) => (
+                  {expiringLeads.map((lead: Lead) => (
                     <TableRow key={lead.id}>
                       <TableCell>
                         <div>

@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Plus, Search, Clock, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { formatDate, getCountryName, getCountryFlag } from '@/lib/utils';
-import type { Lead, Country } from '@/types';
+import type { Lead, Country, LeadStatus } from '@/types';
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   contacted: { label: 'Contacted', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: Clock },
@@ -63,6 +63,7 @@ export default function LeadsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showNewLeadDialog, setShowNewLeadDialog] = useState(false);
+  const [now] = useState(() => Date.now());
   
   // New lead form
   const [newLead, setNewLead] = useState({
@@ -108,7 +109,7 @@ export default function LeadsPage() {
   const handleStatusChange = async (leadId: string, newStatus: string) => {
     await updateLead.mutateAsync({
       id: leadId,
-      status: newStatus as any,
+      status: newStatus as LeadStatus,
     });
   };
 
@@ -288,7 +289,7 @@ export default function LeadsPage() {
                 const status = statusConfig[lead.status] || statusConfig.contacted;
                 const StatusIcon = status.icon;
                 const isExpiringSoon = lead.expires_at && 
-                  new Date(lead.expires_at).getTime() - Date.now() < 14 * 24 * 60 * 60 * 1000;
+                  new Date(lead.expires_at).getTime() - now < 14 * 24 * 60 * 60 * 1000;
                 
                 return (
                   <TableRow key={lead.id}>
@@ -317,7 +318,7 @@ export default function LeadsPage() {
                         <Badge variant="outline" className="text-orange-600 border-orange-300">
                           <AlertTriangle className="h-3 w-3 mr-1" />
                           {lead.expires_at ? 
-                            `${Math.ceil((new Date(lead.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d` 
+                            `${Math.ceil((new Date(lead.expires_at).getTime() - now) / (1000 * 60 * 60 * 24))}d` 
                             : '-'}
                         </Badge>
                       ) : lead.expires_at ? (

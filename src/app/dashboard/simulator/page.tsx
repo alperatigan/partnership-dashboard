@@ -26,7 +26,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency, getCountryName, getCountryFlag } from '@/lib/utils';
 import { Calculator, Save, RotateCcw, TrendingUp, Users, DollarSign } from 'lucide-react';
-import type { Country, Plan } from '@/types';
+import type { Country, Plan, SimulatorSession } from '@/types';
 
 interface Pricing {
   [key: string]: {
@@ -85,7 +85,7 @@ export default function SimulatorPage() {
   const [country, setCountry] = useState<Country>('PH');
   const [plan, setPlan] = useState<Plan>('professional');
   const [monthlyClients, setMonthlyClients] = useState(5);
-  const [savedSessions, setSavedSessions] = useState<any[]>([]);
+  const [savedSessions, setSavedSessions] = useState<SimulatorSession[]>([]);
 
   const pricing = PRICING[country];
   const selectedPlan = pricing.plans[plan];

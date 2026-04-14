@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import type { Company, PartnerNote, PartnerWithCompany } from '@/types';
+import type { Company, PartnerNote, PartnerWithCompany, Commission } from '@/types';
 import { useSelectedCompany } from '@/lib/company-context';
 
 const supabase = createClient();
@@ -230,13 +230,13 @@ export function useAdminStatsByCompany() {
         commissionsQuery
       ]);
       
-      const commissions = commissionsResult.data || [];
+      const commissions = commissionsResult.data as Commission[] || [];
       const totalPaid = commissions
-        .filter((c: any) => c.status === 'paid')
-        .reduce((sum: number, c: any) => sum + (c.amount || 0), 0);
+        .filter((c: Commission) => c.status === 'paid')
+        .reduce((sum: number, c: Commission) => sum + (c.amount || 0), 0);
       const totalPending = commissions
-        .filter((c: any) => c.status === 'pending' || c.status === 'approved')
-        .reduce((sum: number, c: any) => sum + (c.amount || 0), 0);
+        .filter((c: Commission) => c.status === 'pending' || c.status === 'approved')
+        .reduce((sum: number, c: Commission) => sum + (c.amount || 0), 0);
       
       return {
         total_partners: partnersResult.count || 0,

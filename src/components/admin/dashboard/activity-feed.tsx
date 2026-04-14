@@ -9,7 +9,7 @@ interface Activity {
   type: 'partner_joined' | 'demo_approved' | 'payment_made' | 'alert_triggered' | 'lead_created';
   message: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ActivityFeedProps {

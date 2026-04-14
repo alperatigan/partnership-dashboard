@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Company } from '@/types';
 
@@ -24,11 +24,11 @@ export function CompanyProvider({
 }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | 'all'>(initialCompanyId || 'all');
-  const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchCompanies = useCallback(async () => {
-    setIsLoading(true);
     const { data, error } = await supabase
       .from('companies')
       .select('*')
@@ -38,11 +38,18 @@ export function CompanyProvider({
     if (!error && data) {
       setCompanies(data as Company[]);
     }
-    setIsLoading(false);
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
-    fetchCompanies();
+    const mounted = { current: true };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoading(true);
+    fetchCompanies().then(() => {
+      if (mounted.current) {
+        setIsLoading(false);
+      }
+    });
+    return () => { mounted.current = false; };
   }, [fetchCompanies]);
 
   const selectedCompany = selectedCompanyId === 'all' 
@@ -58,14 +65,14 @@ export function CompanyProvider({
     }
   }, []);
 
-  const value: CompanyContextType = {
+  const value: CompanyContextType = useMemo(() => ({
     companies,
     selectedCompany,
     isAllCompanies: selectedCompanyId === 'all',
     isLoading,
     selectCompany,
     refreshCompanies: fetchCompanies,
-  };
+  }), [companies, selectedCompany, selectedCompanyId, isLoading, selectCompany, fetchCompanies]);
 
   return (
     <CompanyContext.Provider value={value}>
@@ -77,7 +84,14 @@ export function CompanyProvider({
 export function useCompany() {
   const context = useContext(CompanyContext);
   if (context === undefined) {
-    throw new Error('useCompany must be used within a CompanyProvider');
+    return {
+      companies: [],
+      selectedCompany: null,
+      isAllCompanies: true,
+      isLoading: true,
+      selectCompany: () => {},
+      refreshCompanies: async () => {},
+    };
   }
   return context;
 }
@@ -88,12 +102,21 @@ export function useCompanies() {
 }
 
 export function useSelectedCompany() {
-  const { selectedCompany, isAllCompanies } = useCompany();
-  return { 
-    company: selectedCompany, 
-    isAllCompanies,
-    companyId: selectedCompany?.id || null,
-    companyName: selectedCompany?.name || 'All Companies',
-    companyColor: selectedCompany?.primary_color || null,
+  const context = useContext(CompanyContext);
+  if (context === undefined) {
+    return {
+      company: null,
+      isAllCompanies: true,
+      companyId: null,
+      companyName: 'All Companies',
+      companyColor: null,
+    };
+  }
+  return {
+    company: context.selectedCompany,
+    isAllCompanies: context.isAllCompanies,
+    companyId: context.selectedCompany?.id || null,
+    companyName: context.selectedCompany?.name || 'All Companies',
+    companyColor: context.selectedCompany?.primary_color || null,
   };
 }

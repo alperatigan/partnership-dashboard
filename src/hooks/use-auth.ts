@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/hooks/use-store';
 import type { Partner } from '@/types';
+import type { Session } from '@supabase/supabase-js';
 
 export function useAuth(requireAuth: boolean = true) {
   const router = useRouter();
@@ -47,7 +48,7 @@ export function useAuth(requireAuth: boolean = true) {
   useEffect(() => {
     fetchUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
       if (event === 'SIGNED_OUT' || !session) {
         setUser(null);
         if (requireAuth) {

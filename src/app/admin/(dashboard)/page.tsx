@@ -14,6 +14,7 @@ import {
 import { StatsCard, RevenueChart, PartnerGrowthChart, ActivityFeed, UpcomingPayments } from '@/components/admin/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
+import type { Partner, Commission, DemoRecord } from '@/types';
 
 export default function AdminDashboardPage() {
   const { selectedCompany, isAllCompanies } = useCompany();
@@ -151,7 +152,7 @@ export default function AdminDashboardPage() {
 }
 
 // Helper functions to generate chart data from real data
-function generateMonthlyRevenue(commissions: any[]) {
+function generateMonthlyRevenue(commissions: Commission[]) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const currentMonth = new Date().getMonth();
   
@@ -171,7 +172,7 @@ function generateMonthlyRevenue(commissions: any[]) {
   });
 }
 
-function generateMonthlyPartners(partners: any[]) {
+function generateMonthlyPartners(partners: Partner[]) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const currentMonth = new Date().getMonth();
   
@@ -190,8 +191,14 @@ function generateMonthlyPartners(partners: any[]) {
   });
 }
 
-function generateActivityFeed(partners: any[], demos: any[], commissions: any[]) {
-  const activities: any[] = [];
+function generateActivityFeed(partners: Partner[], demos: DemoRecord[], commissions: Commission[]) {
+  interface Activity {
+    id: string;
+    type: string;
+    message: string;
+    timestamp: string;
+  }
+  const activities: Activity[] = [];
 
   // Add recent partners
   partners.slice(0, 3).forEach(partner => {
@@ -226,7 +233,7 @@ function generateActivityFeed(partners: any[], demos: any[], commissions: any[])
   return activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
-function generateUpcomingPayments(commissions: any[], partners: any[]) {
+function generateUpcomingPayments(commissions: Commission[], partners: Partner[]) {
   return commissions
     .filter(c => c.status === 'pending' || c.status === 'approved')
     .slice(0, 5)
