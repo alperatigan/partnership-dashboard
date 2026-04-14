@@ -15,12 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Building2 } from 'lucide-react';
+import { Building2, Lock } from 'lucide-react';
 
 const COMPANY_OPTIONS = [
-  { id: 'clinixglow', name: 'ClinixGlow', color: '#6366F1' },
-  { id: 'graftscope', name: 'GraftScope', color: '#10B981' },
-  { id: 'both', name: 'Both of Them', color: '#8B5CF6' },
+  { id: 'clinixglow', name: 'ClinixGlow', color: '#003087' },
+  { id: 'graftscope', name: 'GraftScope', color: '#009CDE' },
+  { id: 'both', name: 'Both of Them', color: '#FFC439' },
 ];
 
 export default function LoginPage() {
@@ -48,7 +48,6 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
       } else if (data.user) {
-        // Check if partner has partner_companies entries
         const { data: partnerData } = await supabase
           .from('partners')
           .select('id')
@@ -56,7 +55,6 @@ export default function LoginPage() {
           .single();
 
         if (partnerData) {
-          // Check partner_companies
           const { data: partnerCompanies } = await supabase
             .from('partner_companies')
             .select('company_id, is_active')
@@ -64,8 +62,6 @@ export default function LoginPage() {
             .eq('is_active', true);
 
           if (partnerCompanies && partnerCompanies.length > 0) {
-            // If only 1 active company, go to dashboard with that company
-            // If 2 companies, go to company select page
             if (partnerCompanies.length === 1) {
               localStorage.setItem('selected_company_id', partnerCompanies[0].company_id);
               router.push('/dashboard');
@@ -73,11 +69,9 @@ export default function LoginPage() {
               router.push('/company-select');
             }
           } else {
-            // No partner_companies entry, go to dashboard (company_id from partners table)
             router.push('/dashboard');
           }
         } else {
-          // No partner record found, just go to dashboard
           router.push('/dashboard');
         }
         router.refresh();
@@ -112,18 +106,18 @@ export default function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="lg:hidden text-center mb-8">
-        <h1 className="text-2xl font-serif text-primary">Clinixglow</h1>
+        <h1 className="text-2xl font-bold text-[#003087]">Clinixglow</h1>
         <p className="text-sm text-muted-foreground">& Graftscope</p>
       </div>
 
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="space-y-1">
+      <Card className="border border-border shadow-sm rounded-xl">
+        <CardHeader className="space-y-1 pb-2">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              <span className="text-primary-foreground font-serif text-xl">CG</span>
+            <div className="w-12 h-12 rounded-xl bg-[#003087] flex items-center justify-center">
+              <span className="text-white font-bold text-lg">CG</span>
             </div>
           </div>
-          <CardTitle className="text-2xl font-serif text-center">Welcome back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-foreground">Welcome back</CardTitle>
           <CardDescription className="text-center">
             Sign in to your partner dashboard
           </CardDescription>
@@ -131,13 +125,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleEmailLogin} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
+              <div className="p-3 rounded-lg bg-[#E61E00]/10 border border-[#E61E00]/20 text-[#E61E00] text-sm font-medium">
                 {error}
               </div>
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -145,15 +139,16 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-11"
               />
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
+                  className="text-sm text-[#003087] hover:underline font-medium"
                 >
                   Forgot password?
                 </Link>
@@ -164,14 +159,15 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="h-11"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Select Company (Optional)</Label>
+              <Label className="text-sm font-medium text-foreground">Select Company (Optional)</Label>
               <div className="relative">
                 <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-                  <SelectTrigger className="pl-10">
+                  <SelectTrigger className="h-11 pl-10">
                     <SelectValue placeholder="Default company" />
                   </SelectTrigger>
                   <SelectContent>
@@ -195,17 +191,17 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-11 font-semibold" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
+              <span className="bg-card px-3 text-muted-foreground">
                 Or continue with
               </span>
             </div>
@@ -214,25 +210,25 @@ export default function LoginPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className="w-full h-11 font-medium border-2"
             onClick={handleGoogleLogin}
             disabled={googleLoading}
           >
-            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
-                fill="currentColor"
+                fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               />
               <path
-                fill="currentColor"
+                fill="#34A853"
                 d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
               />
               <path
-                fill="currentColor"
+                fill="#FBBC05"
                 d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
               />
               <path
-                fill="currentColor"
+                fill="#EA4335"
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
@@ -241,9 +237,14 @@ export default function LoginPage() {
         </CardContent>
       </Card>
 
+      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <Lock className="w-4 h-4" />
+        <span>Your data is secured with SSL encryption</span>
+      </div>
+
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-primary hover:underline">
+        <Link href="/register" className="text-[#003087] font-semibold hover:underline">
           Apply now
         </Link>
       </p>

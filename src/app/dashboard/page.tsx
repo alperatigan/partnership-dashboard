@@ -21,11 +21,8 @@ import {
   TrendingUp,
   Clock,
   AlertTriangle,
-  CheckCircle,
-  XCircle,
   Plus,
   ArrowUpRight,
-  ArrowDownRight,
   FileText,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -47,7 +44,7 @@ export default function TemsilciDashboardPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#003087] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -59,34 +56,34 @@ export default function TemsilciDashboardPage() {
   const recentPayments = payments?.filter(p => p.status === 'paid').slice(0, 5) || [];
 
   const leadStatusColors: Record<string, string> = {
-    contacted: 'bg-blue-100 text-blue-800',
-    demo_scheduled: 'bg-yellow-100 text-yellow-800',
-    demo_done: 'bg-orange-100 text-orange-800',
-    trial_active: 'bg-green-100 text-green-800',
-    closed: 'bg-primary/10 text-primary',
-    expired: 'bg-red-100 text-red-800',
+    contacted: 'bg-[#003087]/10 text-[#003087]',
+    demo_scheduled: 'bg-[#FFC439]/20 text-[#B8860B]',
+    demo_done: 'bg-[#FF8C00]/10 text-[#FF8C00]',
+    trial_active: 'bg-[#00A303]/10 text-[#00A303]',
+    closed: 'bg-[#003087]/10 text-[#003087]',
+    expired: 'bg-[#E61E00]/10 text-[#E61E00]',
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-serif">
+          <h1 className="text-2xl font-bold text-foreground">
             Welcome back, {user?.name?.split(' ')[0] || 'Partner'}
           </h1>
           <p className="text-muted-foreground mt-1">
             Here&apos;s your partnership overview
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button asChild>
+        <div className="flex gap-3">
+          <Button asChild className="font-semibold">
             <Link href="/dashboard/leads/new">
               <Plus className="mr-2 h-4 w-4" />
               New Lead
             </Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="font-medium border-2">
             <Link href="/dashboard/demos/new">
               <Calendar className="mr-2 h-4 w-4" />
               Log Demo
@@ -97,40 +94,46 @@ export default function TemsilciDashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">This Month Earnings</CardTitle>
+            <div className="w-9 h-9 rounded-lg bg-[#00A303]/10 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-[#00A303]" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats?.this_month_earnings || 0)}</div>
-            <p className="text-xs text-muted-foreground">Setup + Commission + Bonus</p>
+            <div className="text-2xl font-bold text-foreground">{formatCurrency(stats?.this_month_earnings || 0)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Setup + Commission + Bonus</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Customers</CardTitle>
+            <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-[#003087]" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.active_customers || 0}</div>
-            <p className="text-xs text-muted-foreground">In trial or active</p>
+            <div className="text-2xl font-bold text-foreground">{stats?.active_customers || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">In trial or active</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Verified Demos</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Verified Demos</CardTitle>
+            <div className="w-9 h-9 rounded-lg bg-[#FFC439]/20 flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-[#B8860B]" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">{stats?.demo_count_this_month || 0}</span>
+                <span className="text-2xl font-bold text-foreground">{stats?.demo_count_this_month || 0}</span>
                 <span className="text-sm text-muted-foreground">/ {stats?.demo_target || 12}</span>
               </div>
-              <Progress value={demoProgress} className="h-2" />
+              <Progress value={demoProgress} className="h-2 bg-[#E1E5EB]" />
               <p className="text-xs text-muted-foreground">
                 {stats?.demo_target ? stats?.demo_target - stats?.demo_count_this_month : 12} more to reach target
               </p>
@@ -138,32 +141,34 @@ export default function TemsilciDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lifetime Portfolio</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Lifetime Portfolio</CardTitle>
+            <div className="w-9 h-9 rounded-lg bg-[#009CDE]/10 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-[#009CDE]" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats?.lifetime_commission_portfolio || 0)}</div>
-            <p className="text-xs text-muted-foreground">Total commissions earned</p>
+            <div className="text-2xl font-bold text-foreground">{formatCurrency(stats?.lifetime_commission_portfolio || 0)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total commissions earned</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Payment Status */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+        <Card className="bg-gradient-to-br from-[#003087] to-[#004095] text-white border-0">
           <CardHeader>
-            <CardTitle className="text-lg">Pending Balance</CardTitle>
-            <CardDescription className="text-primary-foreground/80">
+            <CardTitle className="text-lg font-semibold">Pending Balance</CardTitle>
+            <CardDescription className="text-white/70">
               $100 payout threshold
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-4xl font-bold">{formatCurrency(stats?.pending_balance || 0)}</div>
             <div className="space-y-2">
-              <Progress value={payoutProgress} className="h-3 bg-primary-foreground/20" />
-              <p className="text-sm text-primary-foreground/80">
+              <Progress value={payoutProgress} className="h-3 bg-white/20" />
+              <p className="text-sm text-white/80">
                 {stats?.payout_threshold && stats?.pending_balance < stats?.payout_threshold
                   ? `${formatCurrency((stats?.payout_threshold || 100) - (stats?.pending_balance || 0))} more to reach $100`
                   : 'Ready for payout!'}
@@ -172,16 +177,18 @@ export default function TemsilciDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Leads This Month</CardTitle>
-            <Plus className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">New Leads This Month</CardTitle>
+            <div className="w-9 h-9 rounded-lg bg-[#F5F7FA] flex items-center justify-center">
+              <Plus className="h-5 w-5 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.new_leads_this_month || 0}</div>
+            <div className="text-2xl font-bold text-foreground">{stats?.new_leads_this_month || 0}</div>
             <Link
               href="/dashboard/leads"
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-[#003087] hover:underline font-medium mt-1 inline-block"
             >
               View all leads →
             </Link>
@@ -193,12 +200,12 @@ export default function TemsilciDashboardPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Expiring Leads */}
         {expiringLeads && expiringLeads.length > 0 && (
-          <Card className="border-orange-200 bg-orange-50/50">
+          <Card className="border-[#FF8C00]/30 bg-[#FF8C00]/5">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-                <CardTitle className="text-lg">Expiring Soon</CardTitle>
-                <Badge variant="destructive">{expiringLeads.length}</Badge>
+                <AlertTriangle className="h-5 w-5 text-[#FF8C00]" />
+                <CardTitle className="text-lg font-semibold">Expiring Soon</CardTitle>
+                <Badge variant="error">{expiringLeads.length}</Badge>
               </div>
               <CardDescription>
                 Leads expiring in the next 14 days - follow up now!
@@ -208,17 +215,17 @@ export default function TemsilciDashboardPage() {
               <Table>
                 <TableBody>
                   {expiringLeads.map((lead: LeadsWithExpiry) => (
-                    <TableRow key={lead.id}>
+                    <TableRow key={lead.id} className="border-b border-border">
                       <TableCell>
                         <div>
-                          <p className="font-medium">{lead.clinic_name}</p>
+                          <p className="font-medium text-foreground">{lead.clinic_name}</p>
                           <p className="text-sm text-muted-foreground">
                             {getCountryFlag(lead.country)} {getCountryName(lead.country)}
                           </p>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Badge variant="outline" className="text-orange-600 border-orange-300">
+                        <Badge variant="warning" className="font-medium">
                           <Clock className="h-3 w-3 mr-1" />
                           {lead.days_until_expiry}d left
                         </Badge>
@@ -232,22 +239,24 @@ export default function TemsilciDashboardPage() {
         )}
 
         {/* Recent Leads */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Leads</CardTitle>
-            <Link href="/dashboard/leads" className="text-sm text-primary hover:underline">
-              View all →
-            </Link>
+        <Card className="border border-border">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold">Recent Leads</CardTitle>
+              <Link href="/dashboard/leads" className="text-sm text-[#003087] hover:underline font-medium">
+                View all →
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
             {recentLeads.length > 0 ? (
               <Table>
                 <TableBody>
                   {recentLeads.map((lead) => (
-                    <TableRow key={lead.id}>
+                    <TableRow key={lead.id} className="border-b border-border last:border-0">
                       <TableCell>
                         <div>
-                          <p className="font-medium">{lead.clinic_name}</p>
+                          <p className="font-medium text-foreground">{lead.clinic_name}</p>
                           <p className="text-sm text-muted-foreground">
                             {getCountryFlag(lead.country)} {getCountryName(lead.country)}
                           </p>
@@ -258,7 +267,7 @@ export default function TemsilciDashboardPage() {
                           {lead.status.replace('_', ' ')}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
+                      <TableCell className="text-right text-muted-foreground text-sm">
                         {formatDate(lead.created_at)}
                       </TableCell>
                     </TableRow>
@@ -268,7 +277,7 @@ export default function TemsilciDashboardPage() {
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <p>No leads yet</p>
-                <Button asChild variant="link" className="mt-2">
+                <Button asChild variant="link" className="mt-2 text-[#003087]">
                   <Link href="/dashboard/leads/new">Add your first lead</Link>
                 </Button>
               </div>
@@ -277,35 +286,37 @@ export default function TemsilciDashboardPage() {
         </Card>
 
         {/* Recent Payments */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Payment History</CardTitle>
-            <Link href="/dashboard/payments" className="text-sm text-primary hover:underline">
-              View all →
-            </Link>
+        <Card className="border border-border">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold">Payment History</CardTitle>
+              <Link href="/dashboard/payments" className="text-sm text-[#003087] hover:underline font-medium">
+                View all →
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
             {recentPayments.length > 0 ? (
               <Table>
                 <TableBody>
                   {recentPayments.map((payment) => (
-                    <TableRow key={payment.id}>
+                    <TableRow key={payment.id} className="border-b border-border last:border-0">
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            payment.type === 'commission' ? 'bg-green-100' : 
-                            payment.type === 'bonus' ? 'bg-blue-100' : 'bg-red-100'
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                            payment.type === 'commission' ? 'bg-[#00A303]/10' : 
+                            payment.type === 'bonus' ? 'bg-[#009CDE]/10' : 'bg-[#E61E00]/10'
                           }`}>
                             {payment.type === 'commission' ? (
-                              <ArrowUpRight className="h-4 w-4 text-green-600" />
+                              <ArrowUpRight className="h-4 w-4 text-[#00A303]" />
                             ) : payment.type === 'bonus' ? (
-                              <ArrowUpRight className="h-4 w-4 text-blue-600" />
+                              <ArrowUpRight className="h-4 w-4 text-[#009CDE]" />
                             ) : (
-                              <ArrowDownRight className="h-4 w-4 text-red-600" />
+                              <ArrowUpRight className="h-4 w-4 text-[#E61E00]" />
                             )}
                           </div>
                           <div>
-                            <p className="font-medium capitalize">{payment.type}</p>
+                            <p className="font-medium capitalize text-foreground">{payment.type}</p>
                             <p className="text-sm text-muted-foreground">
                               {formatDate(payment.paid_at || payment.created_at)}
                             </p>
@@ -313,7 +324,7 @@ export default function TemsilciDashboardPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="font-semibold text-green-600">
+                        <span className="font-semibold text-[#00A303]">
                           +{formatCurrency(payment.amount)}
                         </span>
                       </TableCell>
@@ -330,24 +341,24 @@ export default function TemsilciDashboardPage() {
         </Card>
 
         {/* Demo Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Demo Status</CardTitle>
+        <Card className="border border-border">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold">Demo Status</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm">This month verified demos</span>
-                <span className="font-semibold">{stats?.demo_count_this_month || 0}</span>
+                <span className="text-sm text-muted-foreground">This month verified demos</span>
+                <span className="font-semibold text-foreground">{stats?.demo_count_this_month || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Monthly target</span>
-                <span className="font-semibold">{stats?.demo_target || 12}</span>
+                <span className="text-sm text-muted-foreground">Monthly target</span>
+                <span className="font-semibold text-foreground">{stats?.demo_target || 12}</span>
               </div>
-              <Progress value={demoProgress} className="h-3" />
-              <p className="text-sm text-muted-foreground text-center">
+              <Progress value={demoProgress} className="h-3 bg-[#E1E5EB]" />
+              <p className="text-sm text-muted-foreground text-center font-medium">
                 {demoProgress >= 100
-                  ? '🎉 Target reached! Great job!'
+                  ? 'Target reached! Great job!'
                   : `${Math.round(demoProgress)}% of monthly target`}
               </p>
             </div>
@@ -356,33 +367,33 @@ export default function TemsilciDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
+      <Card className="border border-border">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
-          <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+          <Button variant="outline" className="h-auto py-5 flex-col gap-2 border-2 hover:bg-[#F5F7FA]" asChild>
             <Link href="/dashboard/leads/new">
-              <Plus className="h-5 w-5" />
-              <span>Add New Lead</span>
+              <Plus className="h-5 w-5 text-[#003087]" />
+              <span className="font-medium">Add New Lead</span>
             </Link>
           </Button>
-          <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+          <Button variant="outline" className="h-auto py-5 flex-col gap-2 border-2 hover:bg-[#F5F7FA]" asChild>
             <Link href="/dashboard/demos/new">
-              <Calendar className="h-5 w-5" />
-              <span>Log Demo</span>
+              <Calendar className="h-5 w-5 text-[#003087]" />
+              <span className="font-medium">Log Demo</span>
             </Link>
           </Button>
-          <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+          <Button variant="outline" className="h-auto py-5 flex-col gap-2 border-2 hover:bg-[#F5F7FA]" asChild>
             <Link href="/dashboard/commissions">
-              <DollarSign className="h-5 w-5" />
-              <span>View Commissions</span>
+              <DollarSign className="h-5 w-5 text-[#003087]" />
+              <span className="font-medium">View Commissions</span>
             </Link>
           </Button>
-          <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+          <Button variant="outline" className="h-auto py-5 flex-col gap-2 border-2 hover:bg-[#F5F7FA]" asChild>
             <Link href="/dashboard/documents">
-              <FileText className="h-5 w-5" />
-              <span>Documents</span>
+              <FileText className="h-5 w-5 text-[#003087]" />
+              <span className="font-medium">Documents</span>
             </Link>
           </Button>
         </CardContent>

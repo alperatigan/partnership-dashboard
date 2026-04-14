@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
           change={12}
           changeLabel="vs last month"
           icon={<Users className="h-6 w-6" />}
-          iconColor="bg-blue-100 text-blue-600"
+          iconColor="bg-[#003087]/10 text-[#003087]"
         />
         <StatsCard
           title="Revenue (Paid)"
@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
           change={23}
           changeLabel="vs last month"
           icon={<DollarSign className="h-6 w-6" />}
-          iconColor="bg-green-100 text-green-600"
+          iconColor="bg-[#00A303]/10 text-[#00A303]"
         />
         <StatsCard
           title="Active Demos"
@@ -78,13 +78,13 @@ export default function AdminDashboardPage() {
           change={5}
           changeLabel="vs last month"
           icon={<Calendar className="h-6 w-6" />}
-          iconColor="bg-purple-100 text-purple-600"
+          iconColor="bg-[#FFC439]/20 text-[#B8860B]"
         />
         <StatsCard
           title="Pending Reviews"
           value={pendingPartners + pendingDemos}
           icon={<AlertTriangle className="h-6 w-6" />}
-          iconColor="bg-yellow-100 text-yellow-600"
+          iconColor="bg-[#FF8C00]/10 text-[#FF8C00]"
         />
       </div>
 

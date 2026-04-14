@@ -36,18 +36,17 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 h-screen bg-background border-r flex flex-col">
+    <aside className="w-64 h-screen bg-[#F5F7FA] border-r flex flex-col">
       {/* Logo & Company Switcher */}
-      <div className="p-4 border-b">
+      <div className="p-5 border-b border-border">
         <div className="flex items-center gap-3 mb-4">
           <div 
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg"
-            style={{ backgroundColor: selectedCompany?.primary_color || '#3B82F6' }}
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg bg-[#003087]"
           >
             {selectedCompany?.name?.charAt(0) || 'A'}
           </div>
           <div>
-            <h1 className="font-serif text-lg font-semibold">Admin Panel</h1>
+            <h1 className="font-semibold text-base text-foreground">Admin Panel</h1>
             <p className="text-xs text-muted-foreground">Management</p>
           </div>
         </div>
@@ -64,14 +63,14 @@ export function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group ${
                 isActive 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#003087] text-white shadow-sm' 
+                  : 'hover:bg-[#E1E5EB] text-muted-foreground hover:text-foreground'
               }`}
             >
               <item.icon className={`h-5 w-5 ${isActive ? '' : 'opacity-60'}`} />
               <span className="text-sm font-medium">{item.label}</span>
               {isActive && (
-                <ChevronRight className="h-4 w-4 ml-auto opacity-60" />
+                <ChevronRight className="h-4 w-4 ml-auto opacity-70" />
               )}
             </Link>
           );
@@ -79,10 +78,10 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-border">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-muted-foreground hover:bg-[#E1E5EB] hover:text-foreground transition-colors"
         >
           <LogOut className="h-5 w-5" />
           <span className="text-sm font-medium">Sign Out</span>

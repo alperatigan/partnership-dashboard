@@ -18,7 +18,7 @@ export function StatsCard({
   change, 
   changeLabel,
   icon, 
-  iconColor = 'bg-blue-100 text-blue-600' 
+  iconColor = 'bg-[#003087]/10 text-[#003087]' 
 }: StatsCardProps) {
   const getTrendIcon = () => {
     if (change === undefined || change === 0) return <Minus className="h-3 w-3" />;
@@ -27,19 +27,19 @@ export function StatsCard({
 
   const getTrendColor = () => {
     if (change === undefined || change === 0) return 'text-muted-foreground';
-    return change > 0 ? 'text-green-600' : 'text-red-600';
+    return change > 0 ? 'text-[#00A303]' : 'text-[#E61E00]';
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-6">
+    <Card className="border border-border overflow-hidden">
+      <CardContent className="p-5">
         <div className="flex items-start justify-between">
-          <div className="space-y-2">
+          <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-bold">{value}</p>
+              <p className="text-3xl font-bold text-foreground">{value}</p>
               {change !== undefined && (
-                <div className={`flex items-center gap-1 text-sm ${getTrendColor()}`}>
+                <div className={`flex items-center gap-1 text-sm font-medium ${getTrendColor()}`}>
                   {getTrendIcon()}
                   <span>{Math.abs(change)}%</span>
                 </div>

@@ -3,27 +3,29 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-colors',
   {
     variants: {
       variant: {
         default:
-          'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+          'bg-primary text-primary-foreground',
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+          'bg-secondary text-secondary-foreground',
         destructive:
-          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-        outline: 'text-foreground',
+          'bg-destructive text-destructive-foreground',
+        outline: 'border border-border text-foreground',
         success:
-          'border-transparent bg-green-100 text-green-800',
+          'bg-[#00A303]/10 text-[#00A303] border border-[#00A303]/20',
         warning:
-          'border-transparent bg-yellow-100 text-yellow-800',
+          'bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/20',
+        error:
+          'bg-[#E61E00]/10 text-[#E61E00] border border-[#E61E00]/20',
         silver:
-          'border-transparent bg-gray-100 text-gray-800',
+          'bg-[#9CA3AF]/10 text-[#6B7280] border border-[#9CA3AF]/20',
         gold:
-          'border-transparent bg-yellow-100 text-yellow-700',
+          'bg-[#FFC439]/20 text-[#B8860B] border border-[#FFC439]/30',
         platinum:
-          'border-transparent bg-blue-100 text-blue-800',
+          'bg-[#003087]/10 text-[#003087] border border-[#003087]/20',
       },
     },
     defaultVariants: {
