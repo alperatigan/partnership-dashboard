@@ -57,10 +57,10 @@ export default function AdminLayout({
           </CardHeader>
           <CardContent>
             <button
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/admin/login')}
               className="w-full h-10 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
-              Go to Login
+              Go to Admin Login
             </button>
           </CardContent>
         </Card>
