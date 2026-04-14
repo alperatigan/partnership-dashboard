@@ -8,7 +8,6 @@ import {
   Calendar, 
   Bell, 
   BarChart3, 
-  Settings, 
   LogOut,
   ChevronRight
 } from 'lucide-react';
@@ -23,7 +22,6 @@ const navItems = [
   { href: '/admin/demos', icon: Calendar, label: 'Demos' },
   { href: '/admin/alerts', icon: Bell, label: 'Alerts' },
   { href: '/admin/reports', icon: BarChart3, label: 'Reports' },
-  { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
 export function AdminSidebar() {

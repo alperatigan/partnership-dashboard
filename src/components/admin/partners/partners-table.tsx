@@ -30,7 +30,6 @@ import {
   UserX,
   Mail,
   Download,
-  Plus,
   ArrowUpDown,
 } from 'lucide-react';
 import { formatCurrency, formatDate, getCountryFlag, getCountryName } from '@/lib/utils';
@@ -157,15 +156,33 @@ export function PartnersTable({ onPartnerClick, onBulkAction }: PartnersTablePro
               </select>
 
               {/* Export Button */}
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  const csv = [
+                    ['Name', 'Email', 'Country', 'Status', 'Tier', 'Revenue', 'Joined'].join(','),
+                    ...filteredPartners.map(p => [
+                      p.name,
+                      p.email,
+                      p.country,
+                      p.status,
+                      p.tier || '',
+                      p.total_earned || 0,
+                      p.created_at
+                    ].join(','))
+                  ].join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `partners-${new Date().toISOString().split('T')[0]}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Export
-              </Button>
-
-              {/* Add Partner */}
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Partner
               </Button>
             </div>
           </div>
