@@ -307,6 +307,8 @@ function PartnersSection({ onPartnerClick }: { onPartnerClick: (partner: Partner
 function DemosSection({ adminId }: { adminId: string }) {
   const { data: pendingDemos, isLoading: pendingLoading } = usePendingDemoAudit();
   const { data: allDemos } = useDemoRecords();
+  const { data: partners } = usePartners();
+  const { data: leads } = useLeads();
   const approveDemo = useApproveDemo();
   const updateDemo = useUpdateDemoRecord();
   const [search, setSearch] = useState('');
@@ -314,6 +316,16 @@ function DemosSection({ adminId }: { adminId: string }) {
   const [selectedDemo, setSelectedDemo] = useState<DemoRecord | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [auditNotes, setAuditNotes] = useState('');
+
+  const getPartnerName = (partnerId: string) => {
+    const partner = partners?.find(p => p.id === partnerId);
+    return partner?.name || partnerId.slice(0, 8) + '...';
+  };
+
+  const getLeadClinicName = (leadId: string) => {
+    const lead = leads?.find(l => l.id === leadId);
+    return lead?.clinic_name || leadId.slice(0, 8) + '...';
+  };
 
   const handleApprove = async () => {
     if (!selectedDemo) return;
@@ -332,8 +344,11 @@ function DemosSection({ adminId }: { adminId: string }) {
   };
 
   const filteredDemos = allDemos?.filter(d => {
+    const partnerName = getPartnerName(d.partner_id).toLowerCase();
+    const leadName = getLeadClinicName(d.lead_id).toLowerCase();
+    const matchesSearch = search === '' || partnerName.includes(search.toLowerCase()) || leadName.includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || d.status === statusFilter;
-    return matchesStatus;
+    return matchesSearch && matchesStatus;
   }) || [];
 
   const pendingCount = pendingDemos?.length || 0;
@@ -426,8 +441,8 @@ function DemosSection({ adminId }: { adminId: string }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Partner ID</TableHead>
-                <TableHead>Lead ID</TableHead>
+                <TableHead>Partner</TableHead>
+                <TableHead>Lead (Clinic)</TableHead>
                 <TableHead>Scheduled</TableHead>
                 <TableHead>Verification</TableHead>
                 <TableHead>Status</TableHead>
@@ -440,8 +455,8 @@ function DemosSection({ adminId }: { adminId: string }) {
                 const StatusIcon = status.icon;
                 return (
                   <TableRow key={demo.id}>
-                    <TableCell className="font-mono text-sm">{demo.partner_id.slice(0, 8)}...</TableCell>
-                    <TableCell className="font-mono text-sm">{demo.lead_id.slice(0, 8)}...</TableCell>
+                    <TableCell className="font-medium">{getPartnerName(demo.partner_id)}</TableCell>
+                    <TableCell>{getLeadClinicName(demo.lead_id)}</TableCell>
                     <TableCell>{demo.scheduled_at ? formatDate(demo.scheduled_at) : '-'}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
@@ -481,12 +496,12 @@ function DemosSection({ adminId }: { adminId: string }) {
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-muted-foreground">Partner ID</Label>
-                  <p className="font-mono text-sm">{selectedDemo.partner_id}</p>
+                  <Label className="text-muted-foreground">Partner</Label>
+                  <p className="font-medium">{getPartnerName(selectedDemo.partner_id)}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Lead ID</Label>
-                  <p className="font-mono text-sm">{selectedDemo.lead_id}</p>
+                  <Label className="text-muted-foreground">Lead (Clinic)</Label>
+                  <p className="font-medium">{getLeadClinicName(selectedDemo.lead_id)}</p>
                 </div>
               </div>
               <div>
