@@ -28,9 +28,12 @@ export default function AdminLayout({
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session?.user) {
+        alert('Layout: No session found - redirecting to /admin/login');
         router.push('/admin/login');
         return;
       }
+
+      alert('Layout: Session found for user: ' + session.user.id);
 
       const { data: admin } = await supabase
         .from('admins')
@@ -39,10 +42,12 @@ export default function AdminLayout({
         .single();
 
       if (!admin) {
+        alert('Layout: User ' + session.user.id + ' not found in admins table');
         router.push('/dashboard');
         return;
       }
 
+      alert('Layout: Admin found! Redirecting...');
       setIsAdmin(true);
       setIsLoading(false);
     }
