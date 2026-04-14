@@ -31,9 +31,9 @@ import { formatDate, getCountryFlag, getCountryName } from '@/lib/utils';
 import type { DemoRecord } from '@/types';
 
 const statusConfig = {
-  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
-  approved: { label: 'Approved', color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
+  pending: { label: 'Pending', color: 'bg-[#FFC439]/20 text-[#B8860B] border-[#FFC439]/30', icon: Clock },
+  approved: { label: 'Approved', color: 'bg-[#00A303]/10 text-[#00A303] border-[#00A303]/20', icon: CheckCircle },
+  rejected: { label: 'Rejected', color: 'bg-[#E61E00]/10 text-[#E61E00] border-[#E61E00]/20', icon: XCircle },
 };
 
 export default function AdminDemosPage() {
@@ -104,83 +104,91 @@ export default function AdminDemosPage() {
   if (pendingLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#003087] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif">Demo Audit</h1>
+        <h1 className="text-2xl font-bold text-foreground">Demo Audit</h1>
         <p className="text-muted-foreground mt-1">
           Review and verify partner demo submissions
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
-            <CardDescription>Awaiting your approval</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <Clock className="h-5 w-5 text-yellow-500" />
-              <span className="text-3xl font-bold">{pendingCount}</span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
+                <p className="text-3xl font-bold text-foreground">{pendingCount}</p>
+                <p className="text-xs text-muted-foreground">Awaiting approval</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#FFC439]/20 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-[#B8860B]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
-            <CardDescription>Demos verified</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-3xl font-bold">
-                {allDemos?.filter(d => d.status === 'approved' && d.audited_at && new Date(d.audited_at).toDateString() === new Date().toDateString()).length || 0}
-              </span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Approved Today</p>
+                <p className="text-3xl font-bold text-foreground">
+                  {allDemos?.filter(d => d.status === 'approved' && d.audited_at && new Date(d.audited_at).toDateString() === new Date().toDateString()).length || 0}
+                </p>
+                <p className="text-xs text-muted-foreground">Demos verified</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#00A303]/10 flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-[#00A303]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Rejected Today</CardTitle>
-            <CardDescription>Demos rejected</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <XCircle className="h-5 w-5 text-red-500" />
-              <span className="text-3xl font-bold">
-                {allDemos?.filter(d => d.status === 'rejected' && d.audited_at && new Date(d.audited_at).toDateString() === new Date().toDateString()).length || 0}
-              </span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Rejected Today</p>
+                <p className="text-3xl font-bold text-foreground">
+                  {allDemos?.filter(d => d.status === 'rejected' && d.audited_at && new Date(d.audited_at).toDateString() === new Date().toDateString()).length || 0}
+                </p>
+                <p className="text-xs text-muted-foreground">Demos rejected</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#E61E00]/10 flex items-center justify-center">
+                <XCircle className="h-5 w-5 text-[#E61E00]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Demos</CardTitle>
-            <CardDescription>All time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <Calendar className="h-5 w-5 text-blue-500" />
-              <span className="text-3xl font-bold">{allDemos?.length || 0}</span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total Demos</p>
+                <p className="text-3xl font-bold text-foreground">{allDemos?.length || 0}</p>
+                <p className="text-xs text-muted-foreground">All time</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#009CDE]/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-[#009CDE]" />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+      <Card className="border border-border">
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle>Demo Records</CardTitle>
+              <CardTitle className="text-lg font-semibold">Demo Records</CardTitle>
               <CardDescription>
                 {filteredDemos.length} demo{filteredDemos.length !== 1 ? 's' : ''} found
               </CardDescription>
@@ -196,7 +204,7 @@ export default function AdminDemosPage() {
                 />
               </div>
               <select
-                className="px-3 py-2 border rounded-md text-sm"
+                className="px-3 py-2 border border-border rounded-md text-sm bg-background"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -211,13 +219,13 @@ export default function AdminDemosPage() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Partner ID</TableHead>
-                <TableHead>Lead ID</TableHead>
-                <TableHead>Scheduled</TableHead>
-                <TableHead>Verification</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Audit Notes</TableHead>
+              <TableRow className="bg-[#F5F7FA]">
+                <TableHead className="font-semibold">Partner ID</TableHead>
+                <TableHead className="font-semibold">Lead ID</TableHead>
+                <TableHead className="font-semibold">Scheduled</TableHead>
+                <TableHead className="font-semibold">Verification</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Audit Notes</TableHead>
                 <TableHead className="w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -234,14 +242,14 @@ export default function AdminDemosPage() {
                   const StatusIcon = status.icon;
 
                   return (
-                    <TableRow key={demo.id}>
-                      <TableCell className="font-mono text-sm">
+                    <TableRow key={demo.id} className="border-b border-border last:border-0">
+                      <TableCell className="font-mono text-sm text-foreground">
                         {demo.partner_id.slice(0, 8)}...
                       </TableCell>
-                      <TableCell className="font-mono text-sm">
+                      <TableCell className="font-mono text-sm text-foreground">
                         {demo.lead_id.slice(0, 8)}...
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground">
                         {demo.scheduled_at ? formatDate(demo.scheduled_at) : '-'}
                       </TableCell>
                       <TableCell>
@@ -250,14 +258,14 @@ export default function AdminDemosPage() {
                           <Checkbox checked={demo.trial_opened} disabled />
                           <Checkbox checked={demo.follow_up_email_sent} disabled />
                           {demo.is_verified ? (
-                            <CheckCircle className="h-4 w-4 text-green-500 ml-1" />
+                            <CheckCircle className="h-4 w-4 text-[#00A303] ml-1" />
                           ) : (
-                            <AlertCircle className="h-4 w-4 text-yellow-500 ml-1" />
+                            <AlertCircle className="h-4 w-4 text-[#B8860B] ml-1" />
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${status.color} border`}>
+                        <Badge className={`${status.color} border font-medium`}>
                           <StatusIcon className="h-3 w-3 mr-1" />
                           {status.label}
                         </Badge>
@@ -279,7 +287,7 @@ export default function AdminDemosPage() {
                               variant="ghost"
                               size="icon"
                               onClick={() => openReject(demo)}
-                              className="text-red-500 hover:text-red-600"
+                              className="text-[#E61E00] hover:text-[#E61E00]"
                             >
                               <XCircle className="h-4 w-4" />
                             </Button>
@@ -384,11 +392,11 @@ export default function AdminDemosPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDetailDialog(false)}>
+            <Button variant="outline" className="font-semibold border-2" onClick={() => setShowDetailDialog(false)}>
               Cancel
             </Button>
             {selectedDemo?.status === 'pending' && (
-              <Button variant="destructive" onClick={() => {
+              <Button variant="outline" className="font-semibold border-2 border-[#E61E00] text-[#E61E00] hover:bg-[#E61E00]/10" onClick={() => {
                 setShowDetailDialog(false);
                 openReject(selectedDemo);
               }}>
@@ -397,7 +405,7 @@ export default function AdminDemosPage() {
               </Button>
             )}
             {selectedDemo?.status === 'pending' && (
-              <Button onClick={handleApprove}>
+              <Button className="font-semibold bg-[#00A303] hover:bg-[#00A303]/90" onClick={handleApprove}>
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Approve Demo
               </Button>
@@ -426,10 +434,10 @@ export default function AdminDemosPage() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
+            <Button variant="outline" className="font-semibold border-2" onClick={() => setShowRejectDialog(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleReject}>
+            <Button className="font-semibold bg-[#E61E00] hover:bg-[#E61E00]/90" onClick={handleReject}>
               <XCircle className="h-4 w-4 mr-1" />
               Reject Demo
             </Button>

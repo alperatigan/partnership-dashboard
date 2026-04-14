@@ -132,22 +132,20 @@ export default function SimulatorPage() {
   }));
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif">Earnings Simulator</h1>
+        <h1 className="text-2xl font-bold text-foreground">Earnings Simulator</h1>
         <p className="text-muted-foreground mt-1">
           Calculate your potential earnings as a partner
         </p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Calculator */}
+      <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
-          <Card>
+          <Card className="border border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-[#003087]" />
                 Calculator
               </CardTitle>
               <CardDescription>
@@ -156,7 +154,7 @@ export default function SimulatorPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
-                <Label>Market</Label>
+                <Label className="text-foreground">Market</Label>
                 <Select value={country} onValueChange={(v) => setCountry(v as Country)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -176,7 +174,7 @@ export default function SimulatorPage() {
               </div>
 
               <div className="space-y-3">
-                <Label>Plan Type</Label>
+                <Label className="text-foreground">Plan Type</Label>
                 <Select value={plan} onValueChange={(v) => setPlan(v as Plan)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -197,8 +195,8 @@ export default function SimulatorPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Monthly Clients</Label>
-                  <Badge variant="outline" className="text-lg px-3 py-1">
+                  <Label className="text-foreground">Monthly Clients</Label>
+                  <Badge variant="outline" className="text-lg px-3 py-1 font-semibold">
                     {monthlyClients}
                   </Badge>
                 </div>
@@ -219,11 +217,11 @@ export default function SimulatorPage() {
               <Separator />
 
               <div className="space-y-4">
-                <Button variant="outline" className="w-full" onClick={handleReset}>
+                <Button variant="outline" className="w-full font-semibold border-2" onClick={handleReset}>
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Reset
                 </Button>
-                <Button className="w-full" onClick={handleSaveSession} disabled={!user?.id}>
+                <Button className="w-full font-semibold" onClick={handleSaveSession} disabled={!user?.id}>
                   <Save className="mr-2 h-4 w-4" />
                   Save Calculation
                 </Button>
@@ -231,43 +229,44 @@ export default function SimulatorPage() {
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
           <div className="grid gap-4 md:grid-cols-3">
-            <Card>
+            <Card className="border border-border">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <TrendingUp className="h-5 w-5 text-primary" />
+                  <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-[#003087]" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Annual Projection</p>
-                    <p className="text-xl font-bold">{formatCurrency(projectedAnnual)}</p>
+                    <p className="text-xl font-bold text-foreground">{formatCurrency(projectedAnnual)}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card>
+
+            <Card className="border border-border">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-100">
-                    <DollarSign className="h-5 w-5 text-green-600" />
+                  <div className="w-9 h-9 rounded-lg bg-[#00A303]/10 flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-[#00A303]" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Monthly Commission</p>
-                    <p className="text-xl font-bold">{formatCurrency(monthlyCommission)}</p>
+                    <p className="text-xl font-bold text-foreground">{formatCurrency(monthlyCommission)}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card>
+
+            <Card className="border border-border">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100">
-                    <Users className="h-5 w-5 text-blue-600" />
+                  <div className="w-9 h-9 rounded-lg bg-[#009CDE]/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-[#009CDE]" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">vs Local Salary</p>
-                    <p className="text-xl font-bold">{vsSalaryMultiplier}x</p>
+                    <p className="text-xl font-bold text-foreground">{vsSalaryMultiplier}x</p>
                   </div>
                 </div>
               </CardContent>
@@ -275,12 +274,10 @@ export default function SimulatorPage() {
           </div>
         </div>
 
-        {/* Results */}
         <div className="space-y-6">
-          {/* Summary Card */}
-          <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+          <Card className="border border-border bg-gradient-to-br from-[#003087] to-[#003087]/80 text-white">
             <CardHeader>
-              <CardTitle>Your Earnings Breakdown</CardTitle>
+              <CardTitle className="text-lg font-semibold">Your Earnings Breakdown</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -293,7 +290,7 @@ export default function SimulatorPage() {
                   <p className="text-2xl font-bold">{formatCurrency(monthlyCommission)}</p>
                 </div>
               </div>
-              <Separator className="bg-primary-foreground/20" />
+              <Separator className="bg-white/20" />
               <div>
                 <p className="text-sm opacity-80">Projected Annual Earnings</p>
                 <p className="text-4xl font-bold">{formatCurrency(projectedAnnual)}</p>
@@ -301,10 +298,9 @@ export default function SimulatorPage() {
             </CardContent>
           </Card>
 
-          {/* 12-Month Projection Table */}
-          <Card>
+          <Card className="border border-border">
             <CardHeader>
-              <CardTitle>12-Month Projection</CardTitle>
+              <CardTitle className="text-lg font-semibold">12-Month Projection</CardTitle>
               <CardDescription>
                 Cumulative earnings over 12 months (assuming consistent client acquisition)
               </CardDescription>
@@ -312,22 +308,22 @@ export default function SimulatorPage() {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Month</TableHead>
-                    <TableHead className="text-right">Monthly Revenue</TableHead>
-                    <TableHead className="text-right">Commission</TableHead>
-                    <TableHead className="text-right">Cumulative</TableHead>
+                  <TableRow className="bg-[#F5F7FA]">
+                    <TableHead className="font-semibold">Month</TableHead>
+                    <TableHead className="text-right font-semibold">Monthly Revenue</TableHead>
+                    <TableHead className="text-right font-semibold">Commission</TableHead>
+                    <TableHead className="text-right font-semibold">Cumulative</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {monthlyProjection.map((row) => (
-                    <TableRow key={row.month}>
-                      <TableCell>Month {row.month}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(row.revenue)}</TableCell>
-                      <TableCell className="text-right text-primary font-medium">
+                    <TableRow key={row.month} className="border-b border-border last:border-0">
+                      <TableCell className="text-foreground">Month {row.month}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{formatCurrency(row.revenue)}</TableCell>
+                      <TableCell className="text-right text-[#003087] font-medium">
                         {formatCurrency(row.commission)}
                       </TableCell>
-                      <TableCell className="text-right font-semibold">
+                      <TableCell className="text-right font-semibold text-foreground">
                         {formatCurrency(row.cumulative)}
                       </TableCell>
                     </TableRow>
@@ -337,10 +333,9 @@ export default function SimulatorPage() {
             </CardContent>
           </Card>
 
-          {/* Plan Comparison */}
-          <Card>
+          <Card className="border border-border">
             <CardHeader>
-              <CardTitle>Plan Comparison</CardTitle>
+              <CardTitle className="text-lg font-semibold">Plan Comparison</CardTitle>
               <CardDescription>
                 How different plans affect your earnings with {monthlyClients} clients/month
               </CardDescription>
@@ -348,10 +343,10 @@ export default function SimulatorPage() {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Plan</TableHead>
-                    <TableHead className="text-right">Per Client</TableHead>
-                    <TableHead className="text-right">Your Commission</TableHead>
+                  <TableRow className="bg-[#F5F7FA]">
+                    <TableHead className="font-semibold">Plan</TableHead>
+                    <TableHead className="text-right font-semibold">Per Client</TableHead>
+                    <TableHead className="text-right font-semibold">Your Commission</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -360,10 +355,10 @@ export default function SimulatorPage() {
                     const revenue = planData.usd * monthlyClients;
                     const commission = revenue * planData.commission;
                     return (
-                      <TableRow key={p}>
-                        <TableCell className="font-medium capitalize">{p}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(planData.usd)}</TableCell>
-                        <TableCell className="text-right text-primary font-medium">
+                      <TableRow key={p} className="border-b border-border last:border-0">
+                        <TableCell className="font-medium capitalize text-foreground">{p}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{formatCurrency(planData.usd)}</TableCell>
+                        <TableCell className="text-right text-[#003087] font-medium">
                           {formatCurrency(commission)}
                         </TableCell>
                       </TableRow>

@@ -21,65 +21,80 @@ export default function AdminPartnersPage() {
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif">Partner Management</h1>
+        <h1 className="text-2xl font-bold text-foreground">Partner Management</h1>
         <p className="text-muted-foreground mt-1">
           Manage partner applications and accounts
         </p>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Partners</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total_partners || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Applications</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.pending_applications || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commissions Paid</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(stats?.total_commissions_paid || 0)}
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total Partners</p>
+                <p className="text-3xl font-bold text-foreground">{stats?.total_partners || 0}</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-[#003087]" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Commissions</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(stats?.total_commissions_pending || 0)}
+
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Pending Applications</p>
+                <p className="text-3xl font-bold text-foreground">{stats?.pending_applications || 0}</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#FFC439]/20 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-[#B8860B]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total Commissions Paid</p>
+                <p className="text-3xl font-bold text-foreground">
+                  {formatCurrency(stats?.total_commissions_paid || 0)}
+                </p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#00A303]/10 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[#00A303]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Pending Commissions</p>
+                <p className="text-3xl font-bold text-foreground">
+                  {formatCurrency(stats?.total_commissions_pending || 0)}
+                </p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#FF8C00]/10 flex items-center justify-center">
+                <UserCheck className="h-5 w-5 text-[#FF8C00]" />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Partners Table */}
       <PartnersTable 
         onPartnerClick={setSelectedPartner}
       />
 
-      {/* Partner Detail Modal */}
       <PartnerDetailModal
         partner={selectedPartner}
         open={!!selectedPartner}

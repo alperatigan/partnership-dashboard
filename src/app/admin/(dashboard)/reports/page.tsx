@@ -3,6 +3,7 @@
 import { usePartners, useCommissions } from '@/hooks/use-queries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   BarChart,
   Bar,
@@ -18,7 +19,7 @@ import {
   Line,
   Legend,
 } from 'recharts';
-import { Download, Calendar, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { Download, Calendar, TrendingUp, Users, DollarSign, CheckCircle, Clock } from 'lucide-react';
 import { formatCurrency, getCountryName } from '@/lib/utils';
 import { useMemo } from 'react';
 
@@ -60,84 +61,99 @@ export default function AdminReportsPage() {
     };
   }, [partners, commissions]);
 
-  const COLORS = ['#1a6b4a', '#f5d0c5', '#6b6b6b', '#2d9d6a'];
+  const COLORS = ['#003087', '#009CDE', '#FFC439', '#00A303'];
 
   if (!stats) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#003087] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-serif">Reports & Analytics</h1>
+          <h1 className="text-2xl font-bold text-foreground">Reports & Analytics</h1>
           <p className="text-muted-foreground mt-1">
             Overview of partnership program performance
           </p>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" className="font-semibold border-2">
           <Download className="mr-2 h-4 w-4" />
           Export Report
         </Button>
       </div>
 
-      {/* Summary Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Partners</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.partnerCount}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commissions</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalCommissions)}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Paid Commissions</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.paidCommissions)}</div>
-            <p className="text-xs text-muted-foreground">Completed payouts</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Commission</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(stats.totalCommissions / (commissions?.length || 1))}
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total Partners</p>
+                <p className="text-3xl font-bold text-foreground">{stats.partnerCount}</p>
+                <p className="text-xs text-muted-foreground">All time</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-[#003087]" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">Per transaction</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total Commissions</p>
+                <p className="text-3xl font-bold text-foreground">{formatCurrency(stats.totalCommissions)}</p>
+                <p className="text-xs text-muted-foreground">All time</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#00A303]/10 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[#00A303]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Paid Commissions</p>
+                <p className="text-3xl font-bold text-foreground">{formatCurrency(stats.paidCommissions)}</p>
+                <p className="text-xs text-muted-foreground">Completed payouts</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#009CDE]/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-[#009CDE]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Avg Commission</p>
+                <p className="text-3xl font-bold text-foreground">
+                  {formatCurrency(stats.totalCommissions / (commissions?.length || 1))}
+                </p>
+                <p className="text-xs text-muted-foreground">Per transaction</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#FFC439]/20 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[#B8860B]" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Partners by Country */}
-        <Card>
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle>Partners by Country</CardTitle>
+            <CardTitle className="text-lg font-semibold">Partners by Country</CardTitle>
             <CardDescription>Distribution of partners across markets</CardDescription>
           </CardHeader>
           <CardContent>
@@ -165,10 +181,9 @@ export default function AdminReportsPage() {
           </CardContent>
         </Card>
 
-        {/* Partners by Status */}
-        <Card>
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle>Partners by Status</CardTitle>
+            <CardTitle className="text-lg font-semibold">Partners by Status</CardTitle>
             <CardDescription>Application status breakdown</CardDescription>
           </CardHeader>
           <CardContent>
@@ -179,17 +194,16 @@ export default function AdminReportsPage() {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#1a6b4a" />
+                  <Bar dataKey="value" fill="#003087" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Monthly Trend */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 border border-border">
           <CardHeader>
-            <CardTitle>Commission Trend</CardTitle>
+            <CardTitle className="text-lg font-semibold">Commission Trend</CardTitle>
             <CardDescription>Monthly commission payments over time</CardDescription>
           </CardHeader>
           <CardContent>
@@ -212,9 +226,9 @@ export default function AdminReportsPage() {
                   <Line
                     type="monotone"
                     dataKey="amount"
-                    stroke="#1a6b4a"
+                    stroke="#003087"
                     strokeWidth={2}
-                    dot={{ fill: '#1a6b4a' }}
+                    dot={{ fill: '#003087' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -223,43 +237,42 @@ export default function AdminReportsPage() {
         </Card>
       </div>
 
-      {/* Recent Activity */}
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle>Recent Commission Transactions</CardTitle>
+          <CardTitle className="text-lg font-semibold">Recent Commission Transactions</CardTitle>
           <CardDescription>Latest commission entries</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Date</th>
-                  <th className="text-left py-3 px-4 font-medium">Client</th>
-                  <th className="text-right py-3 px-4 font-medium">Amount</th>
-                  <th className="text-right py-3 px-4 font-medium">Status</th>
+                <tr className="bg-[#F5F7FA]">
+                  <th className="text-left py-3 px-4 font-semibold">Date</th>
+                  <th className="text-left py-3 px-4 font-semibold">Client</th>
+                  <th className="text-right py-3 px-4 font-semibold">Amount</th>
+                  <th className="text-right py-3 px-4 font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {commissions?.slice(0, 10).map((c) => (
-                  <tr key={c.id} className="border-b">
-                    <td className="py-3 px-4">{new Date(c.created_at).toLocaleDateString()}</td>
-                    <td className="py-3 px-4">{c.client_name || 'N/A'}</td>
-                    <td className="py-3 px-4 text-right font-medium">
+                  <tr key={c.id} className="border-b border-border last:border-0">
+                    <td className="py-3 px-4 text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</td>
+                    <td className="py-3 px-4 text-foreground">{c.client_name || 'N/A'}</td>
+                    <td className="py-3 px-4 text-right font-semibold text-[#003087]">
                       {formatCurrency(c.amount)}
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          c.status === 'paid'
-                            ? 'bg-green-100 text-green-800'
-                            : c.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
+                      <Badge className={
+                        c.status === 'paid'
+                          ? 'bg-[#00A303]/10 text-[#00A303] border-[#00A303]/20'
+                          : c.status === 'pending'
+                          ? 'bg-[#FFC439]/20 text-[#B8860B] border-[#FFC439]/30'
+                          : 'bg-[#E61E00]/10 text-[#E61E00] border-[#E61E00]/20'
+                      }>
+                        {c.status === 'paid' && <CheckCircle className="h-3 w-3 mr-1" />}
+                        {c.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
                         {c.status}
-                      </span>
+                      </Badge>
                     </td>
                   </tr>
                 ))}

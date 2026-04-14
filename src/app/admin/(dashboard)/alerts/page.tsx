@@ -177,79 +177,87 @@ export default function AdminAlertsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#003087] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif">KPI Alerts</h1>
+        <h1 className="text-2xl font-bold text-foreground">KPI Alerts</h1>
         <p className="text-muted-foreground mt-1">
           Monitor partner performance and send quota alerts
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Partners</CardTitle>
-            <CardDescription>Total approved</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <Users className="h-5 w-5 text-blue-500" />
-              <span className="text-3xl font-bold">{stats.total}</span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Active Partners</p>
+                <p className="text-3xl font-bold text-foreground">{stats.total}</p>
+                <p className="text-xs text-muted-foreground">Total approved</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-[#003087]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Under Lead Quota</CardTitle>
-            <CardDescription>Need attention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <TrendingDown className="h-5 w-5 text-orange-500" />
-              <span className="text-3xl font-bold">{stats.underLead}</span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Under Lead Quota</p>
+                <p className="text-3xl font-bold text-foreground">{stats.underLead}</p>
+                <p className="text-xs text-muted-foreground">Need attention</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#FF8C00]/10 flex items-center justify-center">
+                <TrendingDown className="h-5 w-5 text-[#FF8C00]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Under Demo Quota</CardTitle>
-            <CardDescription>Need attention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <TrendingDown className="h-5 w-5 text-orange-500" />
-              <span className="text-3xl font-bold">{stats.underDemo}</span>
+        <Card className="border border-border overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Under Demo Quota</p>
+                <p className="text-3xl font-bold text-foreground">{stats.underDemo}</p>
+                <p className="text-xs text-muted-foreground">Need attention</p>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-[#FF8C00]/10 flex items-center justify-center">
+                <TrendingDown className="h-5 w-5 text-[#FF8C00]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className={stats.critical > 0 ? 'border-red-200' : ''}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Critical</CardTitle>
-            <CardDescription>2+ months under quota</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-1">
-              <AlertTriangle className={`h-5 w-5 ${stats.critical > 0 ? 'text-red-500' : 'text-green-500'}`} />
-              <span className="text-3xl font-bold">{stats.critical}</span>
+        <Card className={`border overflow-hidden ${stats.critical > 0 ? 'border-[#E61E00]/30' : 'border-border'}`}>
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Critical</p>
+                <p className="text-3xl font-bold text-foreground">{stats.critical}</p>
+                <p className="text-xs text-muted-foreground">2+ months under quota</p>
+              </div>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${stats.critical > 0 ? 'bg-[#E61E00]/10' : 'bg-[#00A303]/10'}`}>
+                <AlertTriangle className={`h-5 w-5 ${stats.critical > 0 ? 'text-[#E61E00]' : 'text-[#00A303]'}`} />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+      <Card className="border border-border">
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle>Partner Performance</CardTitle>
+              <CardTitle className="text-lg font-semibold">Partner Performance</CardTitle>
               <CardDescription>
                 {filteredPartners.length} partner{filteredPartners.length !== 1 ? 's' : ''} found
               </CardDescription>
@@ -265,7 +273,7 @@ export default function AdminAlertsPage() {
                 />
               </div>
               <select
-                className="px-3 py-2 border rounded-md text-sm"
+                className="px-3 py-2 border border-border rounded-md text-sm bg-background"
                 value={alertType}
                 onChange={(e) => setAlertType(e.target.value as typeof alertType)}
               >
@@ -280,12 +288,12 @@ export default function AdminAlertsPage() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Partner</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>Leads Progress</TableHead>
-                <TableHead>Demos Progress</TableHead>
-                <TableHead>Under Quota</TableHead>
+              <TableRow className="bg-[#F5F7FA]">
+                <TableHead className="font-semibold">Partner</TableHead>
+                <TableHead className="font-semibold">Country</TableHead>
+                <TableHead className="font-semibold">Leads Progress</TableHead>
+                <TableHead className="font-semibold">Demos Progress</TableHead>
+                <TableHead className="font-semibold">Under Quota</TableHead>
                 <TableHead className="w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -304,24 +312,24 @@ export default function AdminAlertsPage() {
     const isCritical = !!(p.under_quota_months && p.under_quota_months >= 2);
 
                   return (
-                    <TableRow key={partner.id} className={isCritical ? 'bg-red-50' : ''}>
+                    <TableRow key={partner.id} className={`border-b border-border last:border-0 ${isCritical ? 'bg-[#E61E00]/5' : ''}`}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{partner.name}</p>
+                          <p className="font-medium text-foreground">{partner.name}</p>
                           <p className="text-sm text-muted-foreground">{partner.email}</p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <span>{getCountryFlag(partner.country)}</span>
-                          <span>{getCountryName(partner.country)}</span>
+                          <span className="text-foreground">{getCountryName(partner.country)}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           <div className="flex items-center justify-between text-sm">
-                            <span>{p.monthly_leads || 0}/{p.lead_quota || 20}</span>
-                            <span className={leadProgress < 100 ? 'text-orange-500' : 'text-green-500'}>
+                            <span className="text-foreground">{p.monthly_leads || 0}/{p.lead_quota || 20}</span>
+                            <span className={leadProgress < 100 ? 'text-[#FF8C00]' : 'text-[#00A303]'}>
                               {leadProgress.toFixed(0)}%
                             </span>
                           </div>
@@ -331,8 +339,8 @@ export default function AdminAlertsPage() {
                       <TableCell>
                         <div className="space-y-1">
                           <div className="flex items-center justify-between text-sm">
-                            <span>{p.monthly_demos || 0}/{p.demo_quota || 12}</span>
-                            <span className={demoProgress < 100 ? 'text-orange-500' : 'text-green-500'}>
+                            <span className="text-foreground">{p.monthly_demos || 0}/{p.demo_quota || 12}</span>
+                            <span className={demoProgress < 100 ? 'text-[#FF8C00]' : 'text-[#00A303]'}>
                               {demoProgress.toFixed(0)}%
                             </span>
                           </div>
@@ -341,12 +349,12 @@ export default function AdminAlertsPage() {
                       </TableCell>
                       <TableCell>
                         {p.under_quota_months && p.under_quota_months > 0 ? (
-                          <Badge className={isCritical ? 'bg-red-100 text-red-800 border-red-200' : 'bg-orange-100 text-orange-800 border-orange-200'}>
+                          <Badge className={isCritical ? 'bg-[#E61E00]/10 text-[#E61E00] border-[#E61E00]/20' : 'bg-[#FFC439]/20 text-[#B8860B] border-[#FFC439]/30'}>
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             {p.under_quota_months} mo
                           </Badge>
                         ) : (
-                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                          <Badge className="bg-[#00A303]/10 text-[#00A303] border-[#00A303]/20">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             On track
                           </Badge>
@@ -356,6 +364,7 @@ export default function AdminAlertsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="font-medium"
                           onClick={() => openAlertDialog(p)}
                         >
                           <Bell className="h-4 w-4 mr-1" />
@@ -418,10 +427,10 @@ export default function AdminAlertsPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAlertDialog(false)}>
+            <Button variant="outline" className="font-semibold border-2" onClick={() => setShowAlertDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSendAlert}>
+            <Button className="font-semibold bg-[#003087] hover:bg-[#003087]/90" onClick={handleSendAlert}>
               <BellRing className="h-4 w-4 mr-1" />
               Send Alert
             </Button>

@@ -64,31 +64,29 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-8 max-w-3xl">
-      {/* Header */}
+    <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-3xl font-serif">Profile</h1>
+        <h1 className="text-2xl font-bold text-foreground">Profile</h1>
         <p className="text-muted-foreground mt-1">
           Manage your partner profile information
         </p>
       </div>
 
-      {/* Profile Card */}
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
           <div className="flex items-center gap-4">
             <div className="relative">
               <Avatar className="h-20 w-20 text-xl">
-                <AvatarFallback className="bg-primary text-primary-foreground">
+                <AvatarFallback className="bg-[#003087] text-white">
                   {getInitials(name)}
                 </AvatarFallback>
               </Avatar>
-              <button className="absolute bottom-0 right-0 p-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+              <button className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#003087] text-white hover:bg-[#003087]/90">
                 <Camera className="h-3 w-3" />
               </button>
             </div>
             <div>
-              <CardTitle className="text-xl">{user.name}</CardTitle>
+              <CardTitle className="text-xl text-foreground">{user.name}</CardTitle>
               <CardDescription className="flex items-center gap-2 mt-1">
                 <Mail className="h-3 w-3" />
                 {user.email}
@@ -96,18 +94,22 @@ export default function ProfilePage() {
               <div className="flex gap-2 mt-2">
                 {user.tier && (
                   <Badge
-                    variant={
+                    className={
                       user.tier === 'platinum'
-                        ? 'platinum'
+                        ? 'bg-[#FFC439]/20 text-[#B8860B] border-[#FFC439]/30'
                         : user.tier === 'gold'
-                        ? 'gold'
-                        : 'silver'
+                        ? 'bg-[#FFC439]/20 text-[#B8860B] border-[#FFC439]/30'
+                        : 'bg-[#9CA3AF]/20 text-[#6B7280] border-[#9CA3AF]/30'
                     }
                   >
                     {user.tier.charAt(0).toUpperCase() + user.tier.slice(1)}
                   </Badge>
                 )}
-                <Badge variant={user.status === 'approved' ? 'success' : 'warning'}>
+                <Badge className={
+                  user.status === 'approved'
+                    ? 'bg-[#00A303]/10 text-[#00A303] border-[#00A303]/20'
+                    : 'bg-[#FFC439]/20 text-[#B8860B] border-[#FFC439]/30'
+                }>
                   {user.status}
                 </Badge>
               </div>
@@ -116,10 +118,9 @@ export default function ProfilePage() {
         </CardHeader>
       </Card>
 
-      {/* Profile Form */}
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle className="text-lg font-semibold">Personal Information</CardTitle>
           <CardDescription>
             Update your profile details. Some fields require admin approval to change.
           </CardDescription>
@@ -127,7 +128,7 @@ export default function ProfilePage() {
         <CardContent className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-foreground">Full Name</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -140,7 +141,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-foreground">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -157,7 +158,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
+              <Label htmlFor="country" className="text-foreground">Country</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Select value={country} onValueChange={setCountry}>
@@ -174,7 +175,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role" className="text-foreground">Role</Label>
               <div className="relative">
                 <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -190,7 +191,7 @@ export default function ProfilePage() {
           <Separator />
 
           <div className="space-y-2">
-            <Label htmlFor="linkedin">LinkedIn Profile</Label>
+            <Label htmlFor="linkedin" className="text-foreground">LinkedIn Profile</Label>
             <div className="relative">
               <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -205,7 +206,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="network">Industry Network</Label>
+            <Label htmlFor="network" className="text-foreground">Industry Network</Label>
             <Textarea
               id="network"
               placeholder="Describe your network or connections in the healthcare industry..."
@@ -215,7 +216,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="whyFit">Why are you a good fit?</Label>
+            <Label htmlFor="whyFit" className="text-foreground">Why are you a good fit?</Label>
             <Textarea
               id="whyFit"
               placeholder="Tell us about your experience..."
@@ -225,36 +226,35 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="font-semibold">
               <Save className="mr-2 h-4 w-4" />
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
             {saved && (
-              <span className="text-sm text-green-600">Changes saved successfully!</span>
+              <span className="text-sm text-[#00A303]">Changes saved successfully!</span>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Account Info */}
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
+          <CardTitle className="text-lg font-semibold">Account Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between items-center py-2">
             <span className="text-muted-foreground">Member since</span>
-            <span>{formatDate(user.created_at)}</span>
+            <span className="text-foreground">{formatDate(user.created_at)}</span>
           </div>
           <Separator />
           <div className="flex justify-between items-center py-2">
             <span className="text-muted-foreground">Approved at</span>
-            <span>{user.approved_at ? formatDate(user.approved_at) : 'Pending approval'}</span>
+            <span className="text-foreground">{user.approved_at ? formatDate(user.approved_at) : 'Pending approval'}</span>
           </div>
           <Separator />
           <div className="flex justify-between items-center py-2">
             <span className="text-muted-foreground">Total earned</span>
-            <span className="font-semibold text-primary">${user.total_earned?.toFixed(2) || '0.00'}</span>
+            <span className="font-semibold text-[#003087]">${user.total_earned?.toFixed(2) || '0.00'}</span>
           </div>
         </CardContent>
       </Card>
