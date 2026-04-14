@@ -68,67 +68,19 @@ const partnerStatusConfig = {
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('partners');
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
+  const [selectedPartnerData, setSelectedPartnerData] = useState<Partner | null>(null);
   const supabase = createClient();
 
-  useEffect(() => {
-    async function checkAdmin() {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user) {
-        window.location.href = '/admin/login';
-        return;
-      }
+  const handlePartnerClick = async (partner: Partner) => {
+    setSelectedPartnerId(partner.id);
+    setSelectedPartnerData(partner);
+  };
 
-      const { data: admin } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (!admin) {
-        window.location.href = '/dashboard';
-        return;
-      }
-
-      setCurrentUserId(session.user.id);
-      setIsAdmin(true);
-      setCheckingAuth(false);
-    }
-
-    checkAdmin();
-  }, []);
-
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>You are not authorized to access admin panel.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <button
-              onClick={() => window.location.href = '/dashboard'}
-              className="w-full h-10 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80"
-            >
-              Go to Partner Dashboard
-            </button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const handleCloseModal = () => {
+    setSelectedPartnerId(null);
+    setSelectedPartnerData(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -179,25 +131,34 @@ export default function AdminDashboardPage() {
 
       {/* Content */}
       <main className="container mx-auto px-4 py-6">
-        {activeTab === 'partners' && <PartnersSection currentUserId={currentUserId} />}
-        {activeTab === 'demos' && <DemosSection adminId={currentUserId} />}
+        {activeTab === 'partners' && <PartnersSection onPartnerClick={handlePartnerClick} />}
+        {activeTab === 'demos' && <DemosSection adminId="" />}
         {activeTab === 'alerts' && <AlertsSection />}
         {activeTab === 'reports' && <ReportsSection />}
         {activeTab === 'settings' && <SettingsSection />}
       </main>
+
+      {/* Partner Detail Modal */}
+      <Dialog open={!!selectedPartnerId} onOpenChange={handleCloseModal}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Partner Dashboard: {selectedPartnerData?.name}</DialogTitle>
+            <DialogDescription>{selectedPartnerData?.email} - {getCountryName(selectedPartnerData?.country || '')}</DialogDescription>
+          </DialogHeader>
+          {selectedPartnerId && <PartnerDetailModal partnerId={selectedPartnerId} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function PartnersSection({ currentUserId }: { currentUserId: string }) {
+function PartnersSection({ onPartnerClick }: { onPartnerClick: (partner: Partner) => void }) {
   const { data: partners, isLoading } = usePartners();
   const { data: stats } = useAdminStats();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
 
   const filteredPartners = partners?.filter(p => {
-    if (p.user_id === currentUserId) return false;
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.email.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -301,7 +262,11 @@ function PartnersSection({ currentUserId }: { currentUserId: string }) {
             </TableHeader>
             <TableBody>
               {filteredPartners.map((partner) => (
-                <TableRow key={partner.id}>
+                <TableRow 
+                  key={partner.id} 
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => onPartnerClick(partner)}
+                >
                   <TableCell>
                     <div>
                       <p className="font-medium">{partner.name}</p>
@@ -758,6 +723,146 @@ function SettingsSection() {
           <p className="text-muted-foreground">Country pricing configuration coming soon.</p>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function PartnerDetailModal({ partnerId }: { partnerId: string }) {
+  const [activeTab, setActiveTab] = useState<'leads' | 'demos' | 'payments' | 'commissions' | 'documents' | 'profile' | 'simulator'>('leads');
+  const { data: partner } = usePartners();
+  const currentPartner = partner?.find(p => p.id === partnerId);
+
+  return (
+    <div className="py-4">
+      <div className="border-b mb-4">
+        <nav className="flex gap-1 overflow-x-auto">
+          {[
+            { id: 'leads', label: 'Leads' },
+            { id: 'demos', label: 'Demos' },
+            { id: 'payments', label: 'Payments' },
+            { id: 'commissions', label: 'Commissions' },
+            { id: 'documents', label: 'Documents' },
+            { id: 'profile', label: 'Profile' },
+            { id: 'simulator', label: 'Simulator' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+              className={`px-4 py-2 text-sm border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <div className="min-h-[400px]">
+        {activeTab === 'leads' && <PartnerLeads partnerId={partnerId} />}
+        {activeTab === 'demos' && <PartnerDemos partnerId={partnerId} />}
+        {activeTab === 'payments' && <PartnerPayments partnerId={partnerId} />}
+        {activeTab === 'commissions' && <PartnerCommissions partnerId={partnerId} />}
+        {activeTab === 'documents' && <PartnerDocuments partnerId={partnerId} />}
+        {activeTab === 'profile' && currentPartner && <PartnerProfile partner={currentPartner} />}
+        {activeTab === 'simulator' && <PartnerSimulator partnerId={partnerId} />}
+      </div>
+    </div>
+  );
+}
+
+function PartnerLeads({ partnerId }: { partnerId: string }) {
+  const { data: leads } = usePartners();
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium">Leads ({leads?.length || 0})</h3>
+      </div>
+      <p className="text-muted-foreground text-sm">Leads management coming soon...</p>
+    </div>
+  );
+}
+
+function PartnerDemos({ partnerId }: { partnerId: string }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-medium">Demos</h3>
+      <p className="text-muted-foreground text-sm">Demo management coming soon...</p>
+    </div>
+  );
+}
+
+function PartnerPayments({ partnerId }: { partnerId: string }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-medium">Payments</h3>
+      <p className="text-muted-foreground text-sm">Payment history coming soon...</p>
+    </div>
+  );
+}
+
+function PartnerCommissions({ partnerId }: { partnerId: string }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-medium">Commissions</h3>
+      <p className="text-muted-foreground text-sm">Commission details coming soon...</p>
+    </div>
+  );
+}
+
+function PartnerDocuments({ partnerId }: { partnerId: string }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-medium">Documents</h3>
+      <p className="text-muted-foreground text-sm">Document checklist coming soon...</p>
+    </div>
+  );
+}
+
+function PartnerProfile({ partner }: { partner: Partner }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-medium">Profile</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label className="text-muted-foreground">Name</Label>
+          <p>{partner.name}</p>
+        </div>
+        <div>
+          <Label className="text-muted-foreground">Email</Label>
+          <p>{partner.email}</p>
+        </div>
+        <div>
+          <Label className="text-muted-foreground">Country</Label>
+          <p>{getCountryFlag(partner.country)} {getCountryName(partner.country)}</p>
+        </div>
+        <div>
+          <Label className="text-muted-foreground">Status</Label>
+          <Badge variant={partnerStatusConfig[partner.status]?.variant || 'default'}>
+            {partnerStatusConfig[partner.status]?.label || partner.status}
+          </Badge>
+        </div>
+        <div>
+          <Label className="text-muted-foreground">Tier</Label>
+          <p>{partner.tier || 'None'}</p>
+        </div>
+        <div>
+          <Label className="text-muted-foreground">Joined</Label>
+          <p>{formatDate(partner.created_at)}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PartnerSimulator({ partnerId }: { partnerId: string }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-medium">Simulator</h3>
+      <p className="text-muted-foreground text-sm">Simulator sessions coming soon...</p>
     </div>
   );
 }
