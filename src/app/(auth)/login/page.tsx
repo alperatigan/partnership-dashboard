@@ -106,8 +106,11 @@ export default function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="lg:hidden text-center mb-8">
-        <h1 className="text-2xl font-bold text-[#003087]">Clinixglow</h1>
-        <p className="text-sm text-muted-foreground">& Graftscope</p>
+        <div className="flex items-center justify-center gap-3">
+          <span className="text-xl font-bold text-[#003087]">ClinixGlow</span>
+          <span className="text-muted-foreground">&</span>
+          <span className="text-xl font-bold text-[#009CDE]">GraftScope</span>
+        </div>
       </div>
 
       <Card className="border border-border shadow-sm rounded-xl">

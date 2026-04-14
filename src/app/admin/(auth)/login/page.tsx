@@ -60,11 +60,18 @@ export default function AdminLoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-serif text-xl">CG</span>
+            <div className="w-12 h-12 rounded-xl bg-[#003087] flex items-center justify-center">
+              <span className="text-white font-bold text-lg">CG</span>
             </div>
           </div>
-          <CardTitle className="text-2xl text-center font-serif">Admin Login</CardTitle>
+          <div className="text-center mb-2">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-lg font-bold text-[#003087]">ClinixGlow</span>
+              <span className="text-muted-foreground">&</span>
+              <span className="text-lg font-bold text-[#009CDE]">GraftScope</span>
+            </div>
+          </div>
+          <CardTitle className="text-2xl text-center font-bold text-foreground">Admin Login</CardTitle>
           <CardDescription className="text-center">
             Enter your credentials to access the admin panel
           </CardDescription>

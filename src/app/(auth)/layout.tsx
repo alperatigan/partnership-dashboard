@@ -12,8 +12,11 @@ export default function AuthLayout({
         <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#FFC439]/10" />
         
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-white tracking-tight">Clinixglow</h1>
-          <p className="text-white/70 mt-1">& Graftscope</p>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl font-bold text-white tracking-tight">ClinixGlow</span>
+            <span className="text-white/70 text-lg">&</span>
+            <span className="text-3xl font-bold text-[#FFC439] tracking-tight">GraftScope</span>
+          </div>
         </div>
         
         <div className="space-y-8 relative z-10">
