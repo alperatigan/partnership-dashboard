@@ -4,15 +4,9 @@ import { useCompany, useCompanies } from '@/lib/company-context';
 import { Check, ChevronDown, Building2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-console.log('CompanySwitcher component loading...');
-
 export function CompanySwitcher() {
   const companyContext = useCompany();
-  const { data: companies, isLoading } = useCompanies();
-  
-  console.log('DEBUG - companies from useCompanies:', companies);
-  console.log('DEBUG - isLoading:', isLoading);
-  console.log('DEBUG - companyContext.companies:', companyContext.companies);
+  const { data: companies } = useCompanies();
   
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

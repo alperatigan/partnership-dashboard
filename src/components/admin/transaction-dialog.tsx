@@ -38,7 +38,7 @@ export function TransactionDialog({ onSuccess }: TransactionDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    partner_id: '',
+    partner_id: 'none',
     type: 'commission' as TransactionType,
     direction: 'income' as TransactionDirection,
     amount: '',
@@ -70,7 +70,7 @@ export function TransactionDialog({ onSuccess }: TransactionDialogProps) {
       if (error) throw error;
 
       setFormData({
-        partner_id: '',
+        partner_id: 'none',
         type: 'commission',
         direction: 'income',
         amount: '',
