@@ -38,7 +38,7 @@ export const PRICES: Record<Market, PriceData> = {
   VN: { starter_monthly: 1449250, starter_annual: 14492500, pro_monthly: 2687700, pro_annual: 26877000 },
   TH: { starter_monthly: 1760, starter_annual: 17600, pro_monthly: 3264, pro_annual: 32640 },
   ID: { starter_monthly: 943250, starter_annual: 9432500, pro_monthly: 1749300, pro_annual: 17493000 },
-  MY: { starter_monthly: 880, starter_annual: 8800, pro_monthly: 1632, pro_annual: 16320 },
+  MY: { starter_monthly: 248, starter_annual: 2475, pro_monthly: 459, pro_annual: 4590 },
 };
 
 export const USD_PRICES: Record<PlanType, number> = {
