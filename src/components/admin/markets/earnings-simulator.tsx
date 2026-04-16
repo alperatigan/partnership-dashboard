@@ -65,13 +65,13 @@ export function EarningsSimulator({
       if (isAnnual) {
         if (month === 1) {
           partnerCommission = (usdPrice * monthlySales) * 0.6;
-          companyProfit = (usdPrice * monthlySales) * 0.4;
+          companyProfit = (usdPrice * monthlySales) * 0.7;
         } else if (month === 3) {
           partnerCommission = (usdPrice * monthlySales) * 0.2;
-          companyProfit = (usdPrice * monthlySales) * 0.4;
+          companyProfit = 0;
         } else if (month === 6) {
           partnerCommission = (usdPrice * monthlySales) * 0.2;
-          companyProfit = (usdPrice * monthlySales) * 0.2;
+          companyProfit = 0;
         }
       } else {
         partnerCommission = usdPrice * monthlySales * 0.3;

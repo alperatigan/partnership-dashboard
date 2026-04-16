@@ -17,10 +17,10 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
 
   const summary = useMemo(() => {
     const month1Setup = SETUP_FEE_USD * monthlySales;
-    const annualRevenue = usdPrice * monthlySales * 12;
+    const annualRevenue = usdPrice * monthlySales;
 
-    const companyProfit = annualRevenue * 0.7;
-    const partnerCommission = annualRevenue * 0.3;
+    const companyProfit = isAnnual ? annualRevenue * 0.7 : annualRevenue * 12 * 0.7;
+    const partnerCommission = isAnnual ? annualRevenue * 0.3 : annualRevenue * 12 * 0.3;
 
     const milestone = MILESTONES.filter((m) => monthlySales >= m.sales).pop();
     const milestoneBonus = milestone?.bonus || 0;
