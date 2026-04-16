@@ -57,7 +57,7 @@ export function EarningsSimulator({
     let cumulative = 0;
 
     for (let month = 1; month <= 12; month++) {
-      const setup = SETUP_FEE_USD * monthlySales;
+      const setup = month === 1 ? SETUP_FEE_USD * monthlySales : 0;
 
       let partnerCommission = 0;
       let companyProfit = 0;

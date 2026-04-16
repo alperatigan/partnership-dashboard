@@ -17,14 +17,9 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
 
   const summary = useMemo(() => {
     const month1Setup = SETUP_FEE_USD * monthlySales;
-    const annualCommission = isAnnual
-      ? (usdPrice * monthlySales) * (0.6 + 0.2 + 0.2)
-      : usdPrice * monthlySales * 12;
-    const partnerCommission = annualCommission * 0.3;
-
-    const year1CompanyProfit = isAnnual
-      ? (usdPrice * 0.4 + usdPrice * 0.4 + usdPrice * 0.2) * monthlySales
-      : usdPrice * 0.7 * monthlySales * 12;
+    const year1Subscription = usdPrice * monthlySales * 12;
+    const partnerCommission = year1Subscription * 0.3;
+    const year1CompanyProfit = year1Subscription * 0.7;
 
     const milestone = MILESTONES.filter((m) => monthlySales >= m.sales).pop();
     const milestoneBonus = milestone?.bonus || 0;
