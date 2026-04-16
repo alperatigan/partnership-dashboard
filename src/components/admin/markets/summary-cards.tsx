@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Market, PlanType, MARKETS, USD_PRICES, SETUP_FEE_USD, MILESTONES, ACTIVITY_BONUS_USD } from './types';
+import { Card, CardContent } from '@/components/ui/card';
+import { Market, PlanType, MARKETS, USD_PRICES, SETUP_FEE_USD, MILESTONES } from './types';
 import { formatCurrency } from '@/lib/utils';
 import { useMemo } from 'react';
 
@@ -12,7 +12,6 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) {
-  const marketInfo = MARKETS.find((m) => m.id === market)!;
   const isAnnual = plan.includes('annual');
   const usdPrice = USD_PRICES[plan];
 
@@ -22,7 +21,6 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
       ? (usdPrice * monthlySales) * (0.6 + 0.2 + 0.2)
       : usdPrice * monthlySales * 12;
     const partnerCommission = annualCommission * 0.3;
-    const companyMargin = annualCommission * 0.7;
 
     const year1CompanyProfit = isAnnual
       ? (usdPrice * 0.4 + usdPrice * 0.4 + usdPrice * 0.2) * monthlySales
@@ -36,7 +34,6 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
     return {
       month1Setup,
       partnerCommission,
-      companyMargin,
       year1CompanyProfit,
       milestoneBonus,
       year1Partner,
@@ -44,69 +41,55 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
     };
   }, [market, plan, monthlySales, isAnnual, usdPrice]);
 
+  const cards = [
+    {
+      label: 'Setup',
+      value: formatCurrency(summary.month1Setup),
+      subtext: '100% partner',
+      color: 'bg-[#FFC439]/20 text-[#B8860B]',
+      icon: '💰',
+    },
+    {
+      label: 'Commission',
+      value: formatCurrency(summary.partnerCommission),
+      subtext: '30% share',
+      color: 'bg-[#00A303]/10 text-[#00A303]',
+      icon: '📊',
+    },
+    {
+      label: 'Company Profit',
+      value: formatCurrency(summary.year1CompanyProfit),
+      subtext: 'Year 1',
+      color: 'bg-[#003087]/10 text-[#003087]',
+      icon: '🏢',
+    },
+    {
+      label: 'Partner Total',
+      value: formatCurrency(summary.year1Partner),
+      subtext: summary.tierLevel > 0 ? `Tier ${summary.tierLevel}` : 'No milestone',
+      color: 'bg-[#FFC439]/20 text-[#B8860B]',
+      icon: '🎯',
+    },
+  ];
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Card className="border border-border overflow-hidden">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Month 1 Setup</p>
-              <p className="text-2xl font-bold text-foreground">{formatCurrency(summary.month1Setup)}</p>
-              <p className="text-xs text-muted-foreground">100% to partner</p>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {cards.map((card) => (
+        <Card key={card.label} className="border border-border overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg ${card.color} flex items-center justify-center shrink-0`}>
+                <span className="text-lg">{card.icon}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-muted-foreground truncate">{card.label}</p>
+                <p className="text-xl font-bold text-foreground truncate">{card.value}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{card.subtext}</p>
+              </div>
             </div>
-            <div className="w-9 h-9 rounded-lg bg-[#FFC439]/20 flex items-center justify-center">
-              <span className="text-sm">💰</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border border-border overflow-hidden">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Year 1 Commission</p>
-              <p className="text-2xl font-bold text-[#00A303]">{formatCurrency(summary.partnerCommission)}</p>
-              <p className="text-xs text-muted-foreground">30% partner share</p>
-            </div>
-            <div className="w-9 h-9 rounded-lg bg-[#00A303]/10 flex items-center justify-center">
-              <span className="text-sm">📊</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border border-border overflow-hidden">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Company Year 1 Profit</p>
-              <p className="text-2xl font-bold text-[#003087]">{formatCurrency(summary.year1CompanyProfit)}</p>
-              <p className="text-xs text-muted-foreground">After partner share</p>
-            </div>
-            <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center">
-              <span className="text-sm">🏢</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border border-border overflow-hidden">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Partner Year 1 Total</p>
-              <p className="text-2xl font-bold text-[#00A303]">{formatCurrency(summary.year1Partner)}</p>
-              <p className="text-xs text-muted-foreground">
-                {summary.tierLevel > 0 ? `Tier ${summary.tierLevel} milestone` : 'No milestone yet'}
-              </p>
-            </div>
-            <div className="w-9 h-9 rounded-lg bg-[#FFC439]/20 flex items-center justify-center">
-              <span className="text-sm">🎯</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
