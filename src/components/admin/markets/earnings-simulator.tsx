@@ -64,18 +64,18 @@ export function EarningsSimulator({
 
       if (isAnnual) {
         if (month === 1) {
-          partnerCommission = (usdPrice * 0.6) * monthlySales;
-          companyProfit = (usdPrice * 0.4) * monthlySales;
+          partnerCommission = (usdPrice * monthlySales) * 0.6;
+          companyProfit = (usdPrice * monthlySales) * 0.4;
         } else if (month === 3) {
-          partnerCommission = (usdPrice * 0.2) * monthlySales;
-          companyProfit = (usdPrice * 0.4) * monthlySales;
+          partnerCommission = (usdPrice * monthlySales) * 0.2;
+          companyProfit = (usdPrice * monthlySales) * 0.4;
         } else if (month === 6) {
-          partnerCommission = (usdPrice * 0.2) * monthlySales;
-          companyProfit = (usdPrice * 0.2) * monthlySales;
+          partnerCommission = (usdPrice * monthlySales) * 0.2;
+          companyProfit = (usdPrice * monthlySales) * 0.2;
         }
       } else {
-        partnerCommission = usdPrice * 0.3 * monthlySales;
-        companyProfit = usdPrice * 0.7 * monthlySales;
+        partnerCommission = usdPrice * monthlySales * 0.3;
+        companyProfit = usdPrice * monthlySales * 0.7;
       }
 
       const bonus = month === 1 && monthlySales >= ACTIVITY_BONUS_THRESHOLD ? ACTIVITY_BONUS_USD : 0;
@@ -173,7 +173,7 @@ export function EarningsSimulator({
         {currentMilestone && (
           <div className="bg-[#FFC439]/10 border border-[#FFC439]/20 rounded-lg p-3">
             <p className="text-sm font-medium text-[#B8860B]">
-              🎯 Milestone Tier {currentMilestone.tier} achieved! (+${currentMilestone.bonus} bonus)
+              Milestone Tier {currentMilestone.tier} achieved! (+${currentMilestone.bonus} bonus)
             </p>
           </div>
         )}
@@ -184,11 +184,11 @@ export function EarningsSimulator({
               <TableRow className="bg-[#F5F7FA]">
                 <TableHead className="font-semibold">Month</TableHead>
                 <TableHead className="font-semibold text-right">Sales</TableHead>
-                <TableHead className="font-semibold text-right">Setup Fee</TableHead>
-                <TableHead className="font-semibold text-right">Partner Comm.</TableHead>
-                <TableHead className="font-semibold text-right">Company Profit</TableHead>
+                <TableHead className="font-semibold text-right">Setup</TableHead>
+                <TableHead className="font-semibold text-right">Partner 30%</TableHead>
+                <TableHead className="font-semibold text-right">Company 70%</TableHead>
                 <TableHead className="font-semibold text-right">Bonus</TableHead>
-                <TableHead className="font-semibold text-right">Total Partner</TableHead>
+                <TableHead className="font-semibold text-right">Total</TableHead>
                 <TableHead className="font-semibold text-right">Cumulative</TableHead>
               </TableRow>
             </TableHeader>
@@ -198,7 +198,7 @@ export function EarningsSimulator({
                   <TableCell>Month {row.month}</TableCell>
                   <TableCell className="text-right">{row.sales}</TableCell>
                   <TableCell className="text-right text-muted-foreground">
-                    {formatCurrency(row.setup)}
+                    {row.setup > 0 ? formatCurrency(row.setup) : '-'}
                   </TableCell>
                   <TableCell className="text-right text-[#00A303]">
                     {formatCurrency(row.partnerCommission)}
@@ -224,23 +224,23 @@ export function EarningsSimulator({
         <div className="border-t border-border pt-4">
           <div className="flex flex-wrap gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">Total Setup (Year 1):</span>{' '}
+              <span className="text-muted-foreground">Total Setup:</span>{' '}
               <span className="font-semibold">{formatCurrency(totals.setup)}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Total Partner Commission:</span>{' '}
+              <span className="text-muted-foreground">Total Partner 30%:</span>{' '}
               <span className="font-semibold text-[#00A303]">{formatCurrency(totals.partnerCommission)}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Total Company Profit:</span>{' '}
+              <span className="text-muted-foreground">Total Company 70%:</span>{' '}
               <span className="font-semibold text-[#003087]">{formatCurrency(totals.companyProfit)}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Total Bonuses:</span>{' '}
+              <span className="text-muted-foreground">Total Bonus:</span>{' '}
               <span className="font-semibold text-[#FFC439]">{formatCurrency(totals.bonus)}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Partner Year 1 Total:</span>{' '}
+              <span className="text-muted-foreground">Partner Year 1:</span>{' '}
               <span className="font-bold text-lg text-[#00A303]">{formatCurrency(totals.cumulative)}</span>
             </div>
           </div>

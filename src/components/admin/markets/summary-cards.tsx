@@ -17,9 +17,10 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
 
   const summary = useMemo(() => {
     const month1Setup = SETUP_FEE_USD * monthlySales;
-    const year1Subscription = usdPrice * monthlySales * 12;
-    const partnerCommission = year1Subscription * 0.3;
-    const year1CompanyProfit = year1Subscription * 0.7;
+    const annualRevenue = usdPrice * monthlySales * 12;
+
+    const companyProfit = annualRevenue * 0.7;
+    const partnerCommission = annualRevenue * 0.3;
 
     const milestone = MILESTONES.filter((m) => monthlySales >= m.sales).pop();
     const milestoneBonus = milestone?.bonus || 0;
@@ -29,7 +30,7 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
     return {
       month1Setup,
       partnerCommission,
-      year1CompanyProfit,
+      companyProfit,
       milestoneBonus,
       year1Partner,
       tierLevel: milestone?.tier || 0,
@@ -45,15 +46,15 @@ export function SummaryCards({ market, plan, monthlySales }: SummaryCardsProps) 
       icon: '💰',
     },
     {
-      label: 'Commission',
+      label: 'Partner 30%',
       value: formatCurrency(summary.partnerCommission),
-      subtext: '30% share',
+      subtext: 'Year 1',
       color: 'bg-[#00A303]/10 text-[#00A303]',
       icon: '📊',
     },
     {
-      label: 'Company Profit',
-      value: formatCurrency(summary.year1CompanyProfit),
+      label: 'Company 70%',
+      value: formatCurrency(summary.companyProfit),
       subtext: 'Year 1',
       color: 'bg-[#003087]/10 text-[#003087]',
       icon: '🏢',

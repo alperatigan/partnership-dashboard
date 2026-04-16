@@ -19,32 +19,10 @@ export interface PriceData {
   pro_annual: number;
 }
 
-export interface CommissionRates {
-  partnerPercent: number;
-  companyPercent: number;
-}
-
 export interface RetentionSchedule {
   month: number;
   partnerPercent: number;
   companyPercent: number;
-}
-
-export interface SimulatorState {
-  market: Market;
-  plan: PlanType;
-  monthlySales: number;
-}
-
-export interface MonthlyRow {
-  month: number;
-  sales: number;
-  setup: number;
-  partnerCommission: number;
-  companyProfit: number;
-  bonus: number;
-  totalPartner: number;
-  cumulative: number;
 }
 
 export const MARKETS: MarketInfo[] = [
@@ -52,7 +30,7 @@ export const MARKETS: MarketInfo[] = [
   { id: 'VN', flag: '🇻🇳', name: 'Vietnam', currency: 'VND', fxRate: 26350 },
   { id: 'TH', flag: '🇹🇭', name: 'Thailand', currency: 'THB', fxRate: 32 },
   { id: 'ID', flag: '🇮🇩', name: 'Indonesia', currency: 'IDR', fxRate: 17150 },
-  { id: 'MY', flag: '🇲🇾', name: 'Malaysia', currency: 'MYR', fxRate: 4 },
+  { id: 'MY', flag: '🇲🇾', name: 'Malaysia', currency: 'MYR', fxRate: 4.5 },
 ];
 
 export const PRICES: Record<Market, PriceData> = {
@@ -60,7 +38,7 @@ export const PRICES: Record<Market, PriceData> = {
   VN: { starter_monthly: 1449250, starter_annual: 14492500, pro_monthly: 2687700, pro_annual: 26877000 },
   TH: { starter_monthly: 1760, starter_annual: 17600, pro_monthly: 3264, pro_annual: 32640 },
   ID: { starter_monthly: 943250, starter_annual: 9432500, pro_monthly: 1749300, pro_annual: 17493000 },
-  MY: { starter_monthly: 880, starter_annual: 8800, pro_monthly: 1632, pro_annual: 16320 },
+  MY: { starter_monthly: 990, starter_annual: 9900, pro_monthly: 1848, pro_annual: 18480 },
 };
 
 export const USD_PRICES: Record<PlanType, number> = {
@@ -71,11 +49,6 @@ export const USD_PRICES: Record<PlanType, number> = {
 };
 
 export const SETUP_FEE_USD = 50;
-
-export const COMMISSION_RATES: CommissionRates = {
-  partnerPercent: 30,
-  companyPercent: 70,
-};
 
 export const ANNUAL_RETENTION: RetentionSchedule[] = [
   { month: 1, partnerPercent: 60, companyPercent: 40 },
