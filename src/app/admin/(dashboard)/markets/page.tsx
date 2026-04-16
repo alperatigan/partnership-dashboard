@@ -26,26 +26,21 @@ export default function AdminMarketsPage() {
         <MarketTabs selected={market} onChange={setMarket} />
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             <PriceCards market={market} />
+            <EarningsSimulator
+              market={market}
+              plan={plan}
+              monthlySales={monthlySales}
+              onMarketChange={setMarket}
+              onPlanChange={setPlan}
+              onSalesChange={setMonthlySales}
+            />
           </div>
-          <div>
+          <div className="space-y-6">
             <SummaryCards market={market} plan={plan} monthlySales={monthlySales} />
+            <MilestoneDisplay monthlySales={monthlySales} />
           </div>
-        </div>
-
-        <EarningsSimulator
-          market={market}
-          plan={plan}
-          monthlySales={monthlySales}
-          onMarketChange={setMarket}
-          onPlanChange={setPlan}
-          onSalesChange={setMonthlySales}
-        />
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2" />
-          <MilestoneDisplay monthlySales={monthlySales} />
         </div>
 
         <div className="bg-[#F5F7FA] rounded-lg p-4 text-sm text-muted-foreground">
