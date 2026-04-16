@@ -161,7 +161,7 @@ export function EarningsSimulator({
               value={[monthlySales]}
               onValueChange={([v]: number[]) => onSalesChange(v)}
               min={1}
-              max={15}
+              max={50}
               step={1}
               className="pt-2"
             />
