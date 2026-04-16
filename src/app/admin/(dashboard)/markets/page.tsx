@@ -11,8 +11,8 @@ import {
 } from '@/components/admin/markets';
 
 export default function AdminMarketsPage() {
-  const [market, setMarket] = useState<Market>('PH');
-  const [plan, setPlan] = useState<PlanType>('starter_monthly');
+  const [market, setMarket] = useState<Market>('MY');
+  const [plan, setPlan] = useState<PlanType>('pro_monthly');
   const [monthlySales, setMonthlySales] = useState(5);
 
   return (
@@ -23,29 +23,29 @@ export default function AdminMarketsPage() {
       </div>
 
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold">Select Market</h3>
-          <MarketTabs selected={market} onChange={setMarket} />
-        </div>
-
-        <PriceCards market={market} />
+        <MarketTabs selected={market} onChange={setMarket} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <EarningsSimulator
-              market={market}
-              plan={plan}
-              monthlySales={monthlySales}
-              onMarketChange={setMarket}
-              onPlanChange={setPlan}
-              onSalesChange={setMonthlySales}
-            />
+            <PriceCards market={market} />
           </div>
-
-          <div className="space-y-6">
+          <div>
             <SummaryCards market={market} plan={plan} monthlySales={monthlySales} />
-            <MilestoneDisplay monthlySales={monthlySales} />
           </div>
+        </div>
+
+        <EarningsSimulator
+          market={market}
+          plan={plan}
+          monthlySales={monthlySales}
+          onMarketChange={setMarket}
+          onPlanChange={setPlan}
+          onSalesChange={setMonthlySales}
+        />
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2" />
+          <MilestoneDisplay monthlySales={monthlySales} />
         </div>
 
         <div className="bg-[#F5F7FA] rounded-lg p-4 text-sm text-muted-foreground">
