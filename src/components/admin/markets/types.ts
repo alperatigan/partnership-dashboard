@@ -34,18 +34,18 @@ export const MARKETS: MarketInfo[] = [
 ];
 
 export const PRICES: Record<Market, PriceData> = {
-  PH: { starter_monthly: 3300, starter_annual: 33000, pro_monthly: 6120, pro_annual: 61200 },
-  VN: { starter_monthly: 1449250, starter_annual: 14492500, pro_monthly: 2687700, pro_annual: 26877000 },
-  TH: { starter_monthly: 1760, starter_annual: 17600, pro_monthly: 3264, pro_annual: 32640 },
-  ID: { starter_monthly: 943250, starter_annual: 9432500, pro_monthly: 1749300, pro_annual: 17493000 },
-  MY: { starter_monthly: 248, starter_annual: 2475, pro_monthly: 459, pro_annual: 4590 },
+  PH: { starter_monthly: 3300, starter_annual: 33000, pro_monthly: 4920, pro_annual: 49200 },
+  VN: { starter_monthly: 1449250, starter_annual: 14492500, pro_monthly: 2160700, pro_annual: 21607000 },
+  TH: { starter_monthly: 1760, starter_annual: 17600, pro_monthly: 2624, pro_annual: 26240 },
+  ID: { starter_monthly: 943250, starter_annual: 9432500, pro_monthly: 1406300, pro_annual: 14063000 },
+  MY: { starter_monthly: 248, starter_annual: 2475, pro_monthly: 369, pro_annual: 3690 },
 };
 
 export const USD_PRICES: Record<PlanType, number> = {
   starter_monthly: 55,
   starter_annual: 550,
-  pro_monthly: 102,
-  pro_annual: 1020,
+  pro_monthly: 82,
+  pro_annual: 820,
 };
 
 export const SETUP_FEE_USD = 50;
